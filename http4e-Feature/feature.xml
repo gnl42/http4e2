@@ -63,10 +63,6 @@ specific language governing permissions and limitations under the License.
          version="0.0.0"/>
 
    <plugin
-         id="json"
-         version="0.0.0"/>
-
-   <plugin
          id="org.apache.velocity.engine-core"
          version="0.0.0"/>
 

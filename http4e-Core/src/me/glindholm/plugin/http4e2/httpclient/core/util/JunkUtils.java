@@ -25,9 +25,7 @@ import java.net.http.HttpResponse;
 import java.util.List;
 
 import org.eclipse.swt.custom.StyledText;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+
 
 import me.glindholm.plugin.http4e2.crypt.HexUtils;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
@@ -38,11 +36,18 @@ import me.glindholm.plugin.http4e2.httpclient.core.misc.CoreException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
+
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
 
 /**
  * A class with misc utils.
@@ -126,9 +131,16 @@ public class JunkUtils {
             if (isGWTok || isGWTerr) {
                 txt = txt.substring(4);
             }
-            return toJSON(txt, isGWTok, isGWTerr);
+            final String res = prettyJson(txt);
+            if (isGWTok) {
+                return "//OK" + res;
+            } else if (isGWTerr) {
+                return "//EX" + res;
+            } else {
+                return res;
+            }
 
-        } catch (final JSONException e) {
+        } catch (final Exception e) {
 //         ExceptionHandler.handle(e);
             if (bypassXML) {
                 return txt;
@@ -136,48 +148,68 @@ public class JunkUtils {
                 final String line = txt.startsWith("<?xml") ? null : XML_LINE;
                 return prettyXml(txt, line);
             }
-
-        } catch (final Exception e) {
-            ExceptionHandler.handle(e);
-            if (bypassXML) {
-                return txt;
-            } else {
-                final String line = txt.startsWith("<?xml") ? null : XML_LINE;
-                return prettyXml(txt, line);
-            }
         }
 
     }
 
-    private static String toJSON(final String txt, final boolean isGWTok, final boolean isGWTerr) throws JSONException {
-
-        String res = null;
-
-        if (txt.startsWith("[")) {
-            final JSONArray arr = new JSONArray(txt);
-            res = arr.toString(4);
-        } else {
-            final JSONObject obj = new JSONObject(txt);
-            res = obj.toString(4);
+    private static String prettyJson(final String txt) {
+        final StringBuilder sb = new StringBuilder();
+        int indent = 0;
+        boolean inString = false;
+        for (int i = 0; i < txt.length(); i++) {
+            final char c = txt.charAt(i);
+            if (c == '"' && (i == 0 || txt.charAt(i - 1) != '\\')) {
+                inString = !inString;
+                sb.append(c);
+            } else if (inString) {
+                sb.append(c);
+            } else {
+                switch (c) {
+                case '{': case '[':
+                    sb.append(c).append('\n').append("    ".repeat(++indent));
+                    break;
+                case '}': case ']':
+                    sb.append('\n').append("    ".repeat(--indent)).append(c);
+                    break;
+                case ',':
+                    sb.append(c).append('\n').append("    ".repeat(indent));
+                    break;
+                case ':':
+                    sb.append(": ");
+                    break;
+                default:
+                    if (!Character.isWhitespace(c)) {
+                        sb.append(c);
+                    }
+                    break;
+                }
+            }
         }
-        if (isGWTok) {
-            return "//OK" + res;
-        } else if (isGWTerr) {
-            return "//EX" + res;
-        } else {
-            return res;
-        }
+        return sb.toString();
     }
 
     public static String prettyXml(final String xml, final String firstLine) {
         try {
             final String input = firstLine != null ? firstLine + xml : xml;
+
+            // Use SAXSource with a silent ErrorHandler so the SAX parser never
+            // writes "[Fatal Error]" lines directly to System.err
+            final SAXParserFactory spf = SAXParserFactory.newInstance();
+            spf.setNamespaceAware(true);
+            final SAXParser saxParser = spf.newSAXParser();
+            final XMLReader xmlReader = saxParser.getXMLReader();
+            xmlReader.setErrorHandler(new ErrorHandler() {
+                @Override public void warning(SAXParseException e) {}
+                @Override public void error(SAXParseException e) throws SAXParseException { throw e; }
+                @Override public void fatalError(SAXParseException e) throws SAXParseException { throw e; }
+            });
+
             final Transformer transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, firstLine == null ? "no" : "yes");
             final StringWriter writer = new StringWriter();
-            transformer.transform(new StreamSource(new StringReader(input)), new StreamResult(writer));
+            transformer.transform(new SAXSource(xmlReader, new InputSource(new StringReader(input))), new StreamResult(writer));
             return writer.toString().trim();
         } catch (final Exception e) {
 //         ExceptionHandler.handle(e);

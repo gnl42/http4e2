@@ -32,6 +32,5 @@ Import-Package: org.apache.commons.io,
  org.apache.velocity.runtime.resource;version="2.3.0",
  org.apache.velocity.runtime.resource.loader;version="2.3.0",
  org.apache.velocity.runtime.resource.util;version="2.3.0",
- org.apache.velocity.util;version="2.3.0",
- org.json
+ org.apache.velocity.util;version="2.3.0"
 Bundle-ClassPath: .
