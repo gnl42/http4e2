@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse HttpClient (HTTP4e2) Core
-Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-RequiredExecutionEnvironment: JavaSE-21
 Bundle-SymbolicName: me.glindholm.plugin.http4e2.core
 Bundle-Version: 6.0.0.qualifier
 Bundle-Vendor: NEXTinterfaces.com
@@ -36,6 +36,4 @@ Import-Package: org.apache.commons.io,
  org.apache.velocity.runtime.resource.util;version="2.3.0",
  org.apache.velocity.util;version="2.3.0",
  org.json
-Bundle-ClassPath: .,
- target/lib/commons-codec.jar,
- target/lib/commons-httpclient.jar
+Bundle-ClassPath: .

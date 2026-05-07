@@ -15,13 +15,14 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.core.util;
 
-import org.apache.commons.httpclient.HttpMethod;
+import java.io.InputStream;
+import java.net.http.HttpResponse;
 
 /**
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
 public interface ResponseReader {
 
-    void read(HttpMethod httpMethod);
+    void read(HttpResponse<InputStream> response);
 
 }

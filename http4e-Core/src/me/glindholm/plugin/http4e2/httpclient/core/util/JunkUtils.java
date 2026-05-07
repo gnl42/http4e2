@@ -17,11 +17,14 @@ package me.glindholm.plugin.http4e2.httpclient.core.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
 import java.util.List;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.eclipse.swt.custom.StyledText;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,7 +33,6 @@ import org.json.JSONObject;
 import me.glindholm.plugin.http4e2.crypt.HexUtils;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
-import me.glindholm.plugin.http4e2.httpclient.core.client.misc.ApacheHttpListener;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.AssistConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.misc.CoreException;
@@ -46,20 +48,8 @@ public class JunkUtils {
 
     private static String XML_LINE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
-    private final static ApacheHttpListener httpListener = new ApacheHttpListener() {
-        @Override
-        public void write(final byte[] data) {
-            // blank
-        }
-
-        @Override
-        public void close() {
-            // blank
-        }
-    };
-
-    private final static ResponseReader responseReader = httpMethod -> {
-//          HttpUtils.dumpResponse(httpMethod, System.out);
+    private final static ResponseReader responseReader = response -> {
+        // no-op
     };
 
     public static boolean isXwwwFormType(final ItemModel model) {
@@ -198,25 +188,22 @@ public class JunkUtils {
     }
 
     public static String getHdToken(final String url, final String md) {
-        final HttpClient client = new HttpClient();
-        final PostMethod post = new PostMethod(url);
-        post.setRequestHeader("content-type", "application/x-www-form-urlencoded");
-        post.setParameter("v", md);
-
-        post.setApacheHttpListener(httpListener);
+        final HttpClient client = HttpClient.newHttpClient();
         try {
-            HttpUtils.execute(client, post, responseReader);
-            final Header header = post.getResponseHeader("hd-token");
-            if (header != null) {
-//            System.out.println("hd-token:" + header.getValue() + "'");
-                return header.getValue();
+            final String formBody = "v=" + java.net.URLEncoder.encode(md, CoreConstants.UTF8);
+            final HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("content-type", "application/x-www-form-urlencoded")
+                    .POST(BodyPublishers.ofString(formBody))
+                    .build();
+            final HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            responseReader.read(response);
+            final java.util.Optional<String> header = response.headers().firstValue("hd-token");
+            if (header.isPresent()) {
+                return header.get();
             }
         } catch (final Exception ignore) {
             ExceptionHandler.handle(ignore);
-        } finally {
-            if (post != null) {
-                post.releaseConnection();
-            }
         }
         return null;
     }

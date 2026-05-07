@@ -74,10 +74,4 @@ DynamicImport-Package: *
 			<exclude>org.apache.xmlgraphics:batik-script:1.16</exclude>
 		</location>
 	</locations>
-	<environment>
-		<arch>x86_64</arch>
-		<os>win32</os>
-		<ws>win32</ws>
-		<nl>en_CA</nl>
-	</environment>
 </target>
