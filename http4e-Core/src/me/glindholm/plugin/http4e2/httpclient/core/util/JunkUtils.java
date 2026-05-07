@@ -15,7 +15,6 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.core.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -36,8 +35,14 @@ import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.AssistConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.misc.CoreException;
-import nu.xom.Builder;
-import nu.xom.Serializer;
+import java.io.StringReader;
+import java.io.StringWriter;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 /**
  * A class with misc utils.
@@ -166,21 +171,14 @@ public class JunkUtils {
 
     public static String prettyXml(final String xml, final String firstLine) {
         try {
-
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            final Serializer serializer = new Serializer(out);
-            serializer.setIndent(2);
-            if (firstLine != null) {
-                serializer.write(new Builder().build(firstLine + xml, ""));
-            } else {
-                serializer.write(new Builder().build(xml, ""));
-            }
-            final String ret = out.toString("UTF-8");
-            if (firstLine != null) {
-                return ret.substring(firstLine.length()).trim();
-            } else {
-                return ret;
-            }
+            final String input = firstLine != null ? firstLine + xml : xml;
+            final Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, firstLine == null ? "no" : "yes");
+            final StringWriter writer = new StringWriter();
+            transformer.transform(new StreamSource(new StringReader(input)), new StreamResult(writer));
+            return writer.toString().trim();
         } catch (final Exception e) {
 //         ExceptionHandler.handle(e);
             return xml;
