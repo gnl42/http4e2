@@ -100,5 +100,7 @@ public interface CoreImages {
     String PROXY = FOLDER_PLUGIN + "/icons/" + "proxy.png";
     String PROXY_ENABLED = FOLDER_PLUGIN + "/icons/" + "proxy_enabled.png";
     String PROXY_TAB = FOLDER_PLUGIN + "/icons/" + "proxy_tab.png";
+    String CERT_OK = FOLDER_PLUGIN + "/icons/" + "cert_ok.png";
+    String CERT_WARN = FOLDER_PLUGIN + "/icons/" + "cert_warn.png";
 
 }

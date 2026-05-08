@@ -231,6 +231,12 @@ public class BusinessJob {
                     model.setRequest(values[0]);
                     model.fireExecute(new ModelEvent(ModelEvent.REQUEST_APPENDED, model));
                     model.setResponse(values[1]);
+                    if (values.length > 2) {
+                        model.setCertificateInfo(values[2]);
+                    }
+                    if (values.length > 3) {
+                        model.setSelfSignedCert(Boolean.parseBoolean(values[3]));
+                    }
                     model.fireExecute(new ModelEvent(ModelEvent.REQUEST_STOPPED, model));
                 }
                 jDisposed = true;
@@ -249,7 +255,8 @@ public class BusinessJob {
                 currentPerformer = httpPerformer;
                 try {
                     httpPerformer.execute();
-                    return new String[] { httpPerformer.getRequest(), httpPerformer.getResponse() };
+                    return new String[] { httpPerformer.getRequest(), httpPerformer.getResponse(),
+                            httpPerformer.getCertificateInfo(), String.valueOf(httpPerformer.isSelfSignedCert()) };
 
                 } catch (final ConnectException e) {
                     return new String[] { httpPerformer.getRequest(),

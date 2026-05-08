@@ -179,6 +179,7 @@ class ItemView implements ModelListener, Serializable {
         } else if (e.getType() == ModelEvent.REQUEST_STOPPED) {
             if (state.getState() != ItemState.HTTP_STOPPED) {
                 responseView.setHttpText(((ItemModel) e.getModel()).getResponse());
+                responseView.setCertificateInfo(((ItemModel) e.getModel()).getCertificateInfo(), ((ItemModel) e.getModel()).isSelfSignedCert());
                 loadingAnimator.stop();
                 stopItem.setEnabled(false);
                 state.setState(ItemState.HTTP_STOPPED);

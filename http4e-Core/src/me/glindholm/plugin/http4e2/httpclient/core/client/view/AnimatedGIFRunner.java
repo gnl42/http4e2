@@ -68,7 +68,7 @@ class AnimatedGIFRunner implements Runnable {
             final GC graphics = e.gc;
             if (!graphics.isDisposed()) {
                 graphics.drawImage(backgroundImage, positionX, positionY);
-                graphics.dispose();
+                // Do NOT dispose e.gc — SWT owns and disposes it
             }
         });
     }
@@ -175,6 +175,14 @@ class AnimatedGIFRunner implements Runnable {
             }
             if (image != null && !image.isDisposed()) {
                 image.dispose();
+            }
+            // controlGC must be disposed on the UI thread
+            if (controlGC != null && !controlGC.isDisposed()) {
+                display.syncExec(() -> {
+                    if (!controlGC.isDisposed()) {
+                        controlGC.dispose();
+                    }
+                });
             }
         }
     }

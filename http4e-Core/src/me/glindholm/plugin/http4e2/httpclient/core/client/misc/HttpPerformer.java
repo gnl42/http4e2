@@ -35,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -69,6 +70,8 @@ public class HttpPerformer {
 
     private final StringBuilder requestBuff = new StringBuilder();
     private final StringBuilder respBuff = new StringBuilder();
+    private final StringBuilder certBuff = new StringBuilder();
+    private boolean selfSignedCert = false;
 
     private volatile CompletableFuture<HttpResponse<InputStream>> pendingFuture;
 
@@ -297,6 +300,9 @@ public class HttpPerformer {
 
                 @Override
                 public void checkServerTrusted(final X509Certificate[] chain, final String authType) {
+                    if (chain != null) {
+                        captureCertificates(chain);
+                    }
                 }
 
                 @Override
@@ -387,6 +393,55 @@ public class HttpPerformer {
 
     public String getResponse() {
         return respBuff.toString();
+    }
+
+    public String getCertificateInfo() {
+        return certBuff.toString();
+    }
+
+    public boolean isSelfSignedCert() {
+        return selfSignedCert;
+    }
+
+    private void captureCertificates(final X509Certificate[] chain) {
+        certBuff.setLength(0);
+        selfSignedCert = false;
+        for (int i = 0; i < chain.length; i++) {
+            final X509Certificate cert = chain[i];
+            final boolean isSelfSigned = cert.getSubjectX500Principal().equals(cert.getIssuerX500Principal());
+            if (isSelfSigned) {
+                selfSignedCert = true;
+            }
+            certBuff.append("=== Certificate [").append(i + 1).append(" of ").append(chain.length).append("] ===\n\n");
+            certBuff.append("Subject:            ").append(cert.getSubjectX500Principal().getName()).append("\n");
+            certBuff.append("Issuer:             ").append(cert.getIssuerX500Principal().getName()).append("\n");
+            certBuff.append("Self-Signed:        ").append(isSelfSigned ? "YES ⚠" : "No").append("\n");
+            certBuff.append("Serial Number:      ").append(cert.getSerialNumber().toString(16).toUpperCase()).append("\n");
+            certBuff.append("Version:            ").append(cert.getVersion()).append("\n");
+            certBuff.append("Valid From:         ").append(cert.getNotBefore()).append("\n");
+            certBuff.append("Valid Until:        ").append(cert.getNotAfter()).append("\n");
+            certBuff.append("Signature Algorithm:").append(cert.getSigAlgName()).append("\n");
+            certBuff.append("Public Key Algorithm:").append(cert.getPublicKey().getAlgorithm()).append("\n");
+            try {
+                final java.util.Collection<java.util.List<?>> sans = cert.getSubjectAlternativeNames();
+                if (sans != null && !sans.isEmpty()) {
+                    certBuff.append("Subject Alt Names:\n");
+                    for (final java.util.List<?> san : sans) {
+                        final int type = (Integer) san.get(0);
+                        final String typeName = switch (type) {
+                        case 2 -> "DNS";
+                        case 7 -> "IP";
+                        case 1 -> "Email";
+                        default -> "Type-" + type;
+                        };
+                        certBuff.append("  ").append(typeName).append(": ").append(san.get(1)).append("\n");
+                    }
+                }
+            } catch (final CertificateParsingException e) {
+                // ignore
+            }
+            certBuff.append("\n");
+        }
     }
 
     public String getRequest() {

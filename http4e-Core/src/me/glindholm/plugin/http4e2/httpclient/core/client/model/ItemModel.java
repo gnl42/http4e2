@@ -246,6 +246,22 @@ public class ItemModel implements Model {
         item.response = response;
     }
 
+    public String getCertificateInfo() {
+        return item.certificateInfo;
+    }
+
+    public void setCertificateInfo(final String certificateInfo) {
+        item.certificateInfo = certificateInfo;
+    }
+
+    public boolean isSelfSignedCert() {
+        return item.selfSignedCert;
+    }
+
+    public void setSelfSignedCert(final boolean selfSigned) {
+        item.selfSignedCert = selfSigned;
+    }
+
     public String getRequest() {
         return item.request;
     }

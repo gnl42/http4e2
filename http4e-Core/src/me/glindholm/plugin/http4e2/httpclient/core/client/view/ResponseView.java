@@ -55,19 +55,23 @@ class ResponseView {
     private final static int ITEM_JSON = 2;
     private final static int ITEM_HEX = 3;
     private final static int ITEM_BRW = 4;
+    private final static int ITEM_CERT = 5;
     private int currItem = ITEM_RAW;
 
     private final StyledText responseText;
     private final StyledText jsonText;
+    private final StyledText certText;
     private final Browser browser;
     private final PayloadMenu payloadMenu;
     private final PayloadMenu payloadMenuJson;
+    private ToolItem certToolItem;
 
     ResponseView(final ItemModel model, final Composite parent) {
 
         final ViewForm vForm = doToolbar(CoreConstants.TITLE_RESPONSE, model, parent);
         responseText = buildEditorText(vForm);
         jsonText = buildJsonEditorText(vForm);
+        certText = buildCertEditorText(vForm);
         vForm.setContent(responseText);
 
         browser = new Browser(vForm, SWT.NONE);
@@ -103,6 +107,12 @@ class ResponseView {
         });
         jsonText.addKeyListener(new ExecuteKeyListener(() -> model.fireExecute(new ModelEvent(ModelEvent.REQUEST_START, model))));
 
+        certText.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-viewer");
+        certText.setFont(ResourceUtils.getFont(Styles.getInstance(parent.getShell()).getFontMonospaced()));
+        certText.setForeground(defaultFg);
+        certText.setBackground(defaultBg);
+        certText.setEditable(false);
+
         final Menu popupMenu = new Menu(responseText);
         payloadMenu = new PayloadMenu(responseText, popupMenu);
         responseText.setMenu(popupMenu);
@@ -116,6 +126,8 @@ class ResponseView {
         final ToolItem i_hex = Utils.getItem(ITEM_HEX, vForm);
         final ToolItem i_brw = Utils.getItem(ITEM_BRW, vForm);
         final ToolItem i_json = Utils.getItem(ITEM_JSON, vForm);
+        final ToolItem i_cert = Utils.getItem(ITEM_CERT, vForm);
+        certToolItem = i_cert;
         i_raw.setSelection(true);
 
         i_raw.addSelectionListener(new SelectionAdapter() {
@@ -123,7 +135,7 @@ class ResponseView {
             @Override
             public void widgetSelected(final SelectionEvent e) {
                 responseText.setText(text[0]);
-                if (currItem == ITEM_BRW || currItem == ITEM_JSON) {
+                if (currItem != ITEM_RAW && currItem != ITEM_PRETTY && currItem != ITEM_HEX) {
                     vForm.setContent(responseText);
                     vForm.redraw();
                 }
@@ -136,7 +148,7 @@ class ResponseView {
             @Override
             public void widgetSelected(final SelectionEvent e) {
                 responseText.setText(JunkUtils.prettyText(text[0]));
-                if (currItem == ITEM_BRW || currItem == ITEM_JSON) {
+                if (currItem != ITEM_RAW && currItem != ITEM_PRETTY && currItem != ITEM_HEX) {
                     vForm.setContent(responseText);
                     vForm.redraw();
                 }
@@ -149,7 +161,7 @@ class ResponseView {
             @Override
             public void widgetSelected(final SelectionEvent e) {
                 JunkUtils.hexText(responseText, text[0]);
-                if (currItem == ITEM_BRW || currItem == ITEM_JSON) {
+                if (currItem != ITEM_RAW && currItem != ITEM_PRETTY && currItem != ITEM_HEX) {
                     vForm.setContent(responseText);
                     vForm.redraw();
                 }
@@ -182,6 +194,18 @@ class ResponseView {
                 currItem = ITEM_JSON;
             }
         });
+
+        i_cert.addSelectionListener(new SelectionAdapter() {
+
+            @Override
+            public void widgetSelected(final SelectionEvent e) {
+                if (currItem != ITEM_CERT) {
+                    vForm.setContent(certText);
+                    vForm.redraw();
+                }
+                currItem = ITEM_CERT;
+            }
+        });
     }
 
     private StyledText buildEditorText(final Composite parent) {
@@ -199,6 +223,11 @@ class ResponseView {
         final StyledText st = sourceViewer.getTextWidget();
         final JSONLineStyler jsonStyler = new JSONLineStyler();
         st.addLineStyleListener(jsonStyler);
+        return st;
+    }
+
+    private StyledText buildCertEditorText(final Composite parent) {
+        final StyledText st = new StyledText(parent, SWT.MULTI | SWT.V_SCROLL | SWT.WRAP | SWT.READ_ONLY);
         return st;
     }
 
@@ -227,6 +256,10 @@ class ResponseView {
         i_br.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_CORE, CoreImages.BROWSER));
         i_br.setToolTipText("View in Browser");
 
+        final ToolItem i_cert = new ToolItem(bar, SWT.RADIO);
+        i_cert.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.AUTH_TAB));
+        i_cert.setToolTipText("Certificate");
+
         vForm.setTopCenter(bar);
 
         return vForm;
@@ -234,6 +267,9 @@ class ResponseView {
 
     public void setHttpText(final String txt) {
         text[0] = txt;
+        if (currItem == ITEM_CERT) {
+            return; // keep cert view as-is
+        }
         if (currItem == ITEM_RAW) {
             responseText.setText(text[0]);
 
@@ -248,6 +284,16 @@ class ResponseView {
 
         } else {
             jsonText.setText(JunkUtils.jsonText(JunkUtils.prettyText(text[0]), false));
+        }
+    }
+
+    public void setCertificateInfo(final String certInfo, final boolean selfSigned) {
+        final String info = certInfo == null || certInfo.isBlank() ? "(No certificate information available - HTTP connection or not captured)" : certInfo;
+        certText.setText(info);
+        if (certToolItem != null && !certToolItem.isDisposed()) {
+            final String iconKey = selfSigned ? CoreImages.CERT_WARN : (certInfo != null && !certInfo.isBlank() ? CoreImages.CERT_OK : CoreImages.AUTH_TAB);
+            certToolItem.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, iconKey));
+            certToolItem.setToolTipText(selfSigned ? "Certificate (Self-Signed ⚠)" : "Certificate");
         }
     }
 
