@@ -30,6 +30,7 @@ public interface CoreObjects {
     String PARAM_TYPE_TRACKER = "param.type.tracker";
     String IS_STANDALONE = "is.standalone";
     String AUTH_ITEM = "auth.bean";
+    String AUTH_DIALOG_OPENER = "auth.dialog.opener";
     String PROXY_ITEM = "proxy.bean";
     String PARAMETERIZE_ARGS = "parameterize.args";
     String RESPONSE_VIEW_SIZE = "resp.size";

@@ -245,7 +245,7 @@ public class BusinessJob {
             @Override
             public Object execute() {
                 final CoreContext ctx = CoreContext.getContext();
-                final AuthItem authItem = (AuthItem) ctx.getObject(CoreObjects.AUTH_ITEM);
+                final AuthItem authItem = model.getAuth();
                 final ProxyItem proxyItem = (ProxyItem) ctx.getObject(CoreObjects.PROXY_ITEM);
                 final String[] files = { generateFilePath("REQ.txt", request), generateFilePath("RESP.txt", request) };
                 model.setPayloadFiles(files);

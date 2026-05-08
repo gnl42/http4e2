@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
@@ -369,8 +370,7 @@ class ItemView implements ModelListener, Serializable {
             Utils.viewToModel(model, this);
 
         } else if (e.getType() == ModelEvent.AUTH) {
-            final CoreContext ctx = CoreContext.getContext();
-            final AuthItem au = (AuthItem) ctx.getObject(CoreObjects.AUTH_ITEM);
+            final AuthItem au = model.getAuth();
             if (au != null && (au.isBasic() || au.isDigest())) {
                 lblAuth.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.AUTH_ENABLED));
             } else {
@@ -433,7 +433,18 @@ class ItemView implements ModelListener, Serializable {
     private void initAuthProxyBtns(final Composite parent) {
         lblAuth = new Label(parent, SWT.NONE);
         lblAuth.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.AUTH_TAB));
-        lblAuth.setToolTipText("Using BASIC, DIGEST Authentication");
+        lblAuth.setToolTipText("Click to configure BASIC/DIGEST Authentication");
+        lblAuth.setCursor(parent.getDisplay().getSystemCursor(org.eclipse.swt.SWT.CURSOR_HAND));
+        lblAuth.addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
+            @Override
+            public void mouseUp(final org.eclipse.swt.events.MouseEvent e) {
+                @SuppressWarnings("unchecked")
+                final Consumer<ItemModel> opener = (Consumer<ItemModel>) CoreContext.getContext().getObject(CoreObjects.AUTH_DIALOG_OPENER);
+                if (opener != null) {
+                    opener.accept(model);
+                }
+            }
+        });
 
         lblProxy = new Label(parent, SWT.NONE);
         lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_TAB));

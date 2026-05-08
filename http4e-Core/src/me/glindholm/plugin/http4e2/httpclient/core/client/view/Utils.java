@@ -19,7 +19,6 @@ import org.eclipse.swt.widgets.ToolItem;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreObjects;
-import me.glindholm.plugin.http4e2.httpclient.core.client.model.AuthItem;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ModelEvent;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ProxyItem;
@@ -118,7 +117,7 @@ public class Utils {
         // TODO use Auth and Proxy per item not globally
         final CoreContext ctx = CoreContext.getContext();
         iModel.setProxy((ProxyItem) ctx.getObject(CoreObjects.PROXY_ITEM));
-        iModel.setAuth((AuthItem) ctx.getObject(CoreObjects.AUTH_ITEM));
+        // Auth is per-tab: do not overwrite iModel's auth from global context
     }
 
     public static void textToModelHeaders(final String text, final ItemModel iModel) {

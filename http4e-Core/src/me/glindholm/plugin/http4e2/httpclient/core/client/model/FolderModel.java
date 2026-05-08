@@ -104,10 +104,9 @@ public class FolderModel implements Model {
         for (final ItemModel itemModel : imList) {
             itemModel.setAvailableProxies(availableProxies);
             itemModel.setAvailableKeystore(availableKeystore);
-            if (cnt == 0) { // FIXME. Those values belong to FolderModel, not
-                            // ItemModel
+            if (cnt == 0) {
+                // Auth is now per-tab (stored in ItemModel); only restore proxy and parameterize args globally
                 final CoreContext ctx = CoreContext.getContext();
-                ctx.putObject(CoreObjects.AUTH_ITEM, itemModel.getAuth());
                 ctx.putObject(CoreObjects.PROXY_ITEM, itemModel.getProxy());
                 ctx.putObject(CoreObjects.PARAMETERIZE_ARGS, itemModel.getParameteredArgs());
             }

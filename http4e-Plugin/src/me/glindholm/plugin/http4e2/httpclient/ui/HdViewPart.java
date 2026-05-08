@@ -14,16 +14,19 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.ViewPart;
 
+import java.util.function.Consumer;
+
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreObjects;
-import me.glindholm.plugin.http4e2.httpclient.core.client.model.AuthItem;
+import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
+import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ProxyItem;
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.FolderView;
 import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
 import me.glindholm.plugin.http4e2.httpclient.ui.actions.AddTabAction;
-import me.glindholm.plugin.http4e2.httpclient.ui.actions.AuthenticationAction;
+import me.glindholm.plugin.http4e2.httpclient.ui.actions.AuthDialog;
 import me.glindholm.plugin.http4e2.httpclient.ui.actions.DuplicateTabAction;
 import me.glindholm.plugin.http4e2.httpclient.ui.actions.ExportMenuAction;
 import me.glindholm.plugin.http4e2.httpclient.ui.actions.HelpDropDownAction;
@@ -133,10 +136,6 @@ public class HdViewPart extends ViewPart {
         exportMenuAction.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.EXPORT)));
         toolbar.add(exportMenuAction);
 
-        final AuthenticationAction authAction = new AuthenticationAction(this);
-        authAction.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.AUTH)));
-        toolbar.add(authAction);
-
         final ProxyAction proxyAction = new ProxyAction(this);
         proxyAction.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY)));
         toolbar.add(proxyAction);
@@ -149,9 +148,18 @@ public class HdViewPart extends ViewPart {
         viewer = new HdContentViewer(parent);
 
         final CoreContext ctx = CoreContext.getContext();
+        // Register per-tab auth dialog opener: Consumer<ItemModel> called with the clicked tab's model
+        final Consumer<ItemModel> authOpener = itemModel -> {
+            try {
+                final AuthDialog dialog = new AuthDialog(HdViewPart.this, itemModel);
+                dialog.open();
+            } catch (final Exception ex) {
+                ExceptionHandler.handle(ex);
+            }
+        };
+        ctx.putObject(CoreObjects.AUTH_DIALOG_OPENER, authOpener);
+
         final ProxyItem proxyItem = (ProxyItem) ctx.getObject(CoreObjects.PROXY_ITEM);
-        final AuthItem authItem = (AuthItem) ctx.getObject(CoreObjects.AUTH_ITEM);
-        fireAuthEnable(authItem != null && (authItem.isBasic() || authItem.isDigest()));
         fireProxyEnable(proxyItem != null && proxyItem.isProxy());
 
         // folderView=new FolderView(frame, new FolderModel());
@@ -215,23 +223,7 @@ public class HdViewPart extends ViewPart {
     }
 
     public void fireAuthEnable(final boolean enabled) {
-        final IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
-        final IContributionItem[] items = toolbar.getItems();
-
-        for (final IContributionItem it : items) {
-            if (it instanceof final ActionContributionItem aci) {
-                if (aci.getAction() instanceof AuthenticationAction) {
-                    final AuthenticationAction aa = (AuthenticationAction) aci.getAction();
-                    String img = null;
-                    if (enabled) {
-                        img = CoreImages.AUTH_ENABLED;
-                    } else {
-                        img = CoreImages.AUTH;
-                    }
-                    aa.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, img)));
-                }
-            }
-        }
+        // The auth icon is now per-tab; no global toolbar action to update.
     }
 
     public void fireProxyEnable(final boolean enabled) {

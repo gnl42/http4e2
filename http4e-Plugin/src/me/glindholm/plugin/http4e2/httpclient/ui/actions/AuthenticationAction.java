@@ -18,6 +18,8 @@ package me.glindholm.plugin.http4e2.httpclient.ui.actions;
 import org.eclipse.jface.action.Action;
 
 import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
+import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
+import me.glindholm.plugin.http4e2.httpclient.core.client.view.FolderView;
 import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
 
 public class AuthenticationAction extends Action {
@@ -34,7 +36,9 @@ public class AuthenticationAction extends Action {
     @Override
     public void run() {
         try {
-            final AuthDialog dialog = new AuthDialog(view);
+            final FolderView folderView = view.getFolderView();
+            final ItemModel itemModel = folderView.getModel().getItemModel(folderView.getSelectionItemHash());
+            final AuthDialog dialog = new AuthDialog(view, itemModel);
             dialog.open();
         } catch (final Exception e) {
             ExceptionHandler.handle(e);
