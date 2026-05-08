@@ -22,6 +22,8 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Composite;
 
+import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
+
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
@@ -40,7 +42,7 @@ class ViewUtils {
         final CLabel label = new CLabel(vForm, SWT.NONE);
         label.setText(CoreConstants.TITLE_SPACE + title + CoreConstants.TITLE_SPACE);
         label.setAlignment(SWT.LEFT);
-//        label.setBackground(ResourceUtils.getImage(CoreConstants.PLUGIN_CORE, CoreImages.TITLE_LINE));
+        label.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-title-label");
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDoubleClick(final MouseEvent e) {

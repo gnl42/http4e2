@@ -1,0 +1,46 @@
+/*
+ * http4e2 dark theme stylesheet
+ * Applied via the Eclipse e4 CSS theming engine when a dark theme is active.
+ */
+
+/* ---- Editor text areas (StyledText) ---- */
+.http4e-editor {
+    color: #DDDDDD;
+    background-color: #1E1E1E;
+    font: "Courier New" 10px;
+}
+
+.http4e-editor-disabled {
+    color: #EEEEEE;
+    background-color: #808080;
+}
+
+/* ---- Request / Response read-only viewers ---- */
+.http4e-viewer {
+    color: #CCCCCC;
+    background-color: #252526;
+}
+
+/* ---- Section / panel title labels (CLabel) ---- */
+.http4e-title-label {
+    color: #CCCCCC;
+    background-color: #3C3F41;
+}
+
+/* ---- Tab folder (CTabFolder) ---- */
+.http4e-tab-folder {
+    color: #BBBBBB;
+    background-color: #3C3F41;
+    swt-tab-renderer: null;
+}
+
+.http4e-tab-folder:selected {
+    color: #FFFFFF;
+    background-color: #4E9A06;
+}
+
+/* ---- Param / body table (Table) ---- */
+.http4e-param-table {
+    color: #DDDDDD;
+    background-color: #2D2D2D;
+}

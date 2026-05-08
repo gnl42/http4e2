@@ -80,7 +80,8 @@ public class XMLConfiguration extends SourceViewerConfiguration {
     protected XMLScanner getXMLScanner() {
         if (scanner == null) {
             scanner = new XMLScanner(colorManager);
-            scanner.setDefaultReturnToken(new Token(new TextAttribute(colorManager.getColor(IXMLColorConstants.DEFAULT))));
+            // null foreground → inherit widget foreground (theme-aware)
+            scanner.setDefaultReturnToken(new Token(new TextAttribute(null)));
         }
         return scanner;
     }
@@ -88,7 +89,8 @@ public class XMLConfiguration extends SourceViewerConfiguration {
     protected XMLTextScanner getXMLTextScanner() {
         if (textScanner == null) {
             textScanner = new XMLTextScanner(colorManager);
-            textScanner.setDefaultReturnToken(new Token(new TextAttribute(colorManager.getColor(IXMLColorConstants.DEFAULT))));
+            // null foreground → inherit widget foreground (theme-aware)
+            textScanner.setDefaultReturnToken(new Token(new TextAttribute(null)));
         }
         return textScanner;
     }
@@ -104,7 +106,8 @@ public class XMLConfiguration extends SourceViewerConfiguration {
     protected XMLTagScanner getXMLTagScanner() {
         if (tagScanner == null) {
             tagScanner = new XMLTagScanner(colorManager);
-            tagScanner.setDefaultReturnToken(new Token(new TextAttribute(colorManager.getColor(IXMLColorConstants.TAG))));
+            // null foreground → inherit widget foreground (theme-aware)
+            tagScanner.setDefaultReturnToken(new Token(new TextAttribute(null)));
         }
         return tagScanner;
     }

@@ -15,5 +15,6 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jface.text,
  org.eclipse.ui.workbench.texteditor,
  org.eclipse.ui.editors,
- me.glindholm.plugin.http4e2.core
+ me.glindholm.plugin.http4e2.core,
+ org.eclipse.e4.ui.css.swt
 Import-Package: org.apache.commons.lang3.text

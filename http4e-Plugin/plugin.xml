@@ -54,4 +54,19 @@
    </extension>   
    -->
    
+
+   <!-- e4 CSS theming contributions -->
+   <extension point="org.eclipse.e4.ui.css.swt.theme">
+      <stylesheet
+            uri="css/http4e-default.css"
+            themeId="org.eclipse.e4.ui.css.theme.e4_default"
+            label="http4e2 Default">
+      </stylesheet>
+      <stylesheet
+            uri="css/http4e-dark.css"
+            themeId="org.eclipse.e4.ui.css.theme.e4_dark"
+            label="http4e2 Dark">
+      </stylesheet>
+   </extension>
+
 </plugin>

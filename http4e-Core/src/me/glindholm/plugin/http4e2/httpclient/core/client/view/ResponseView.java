@@ -15,6 +15,7 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.core.client.view;
 
+import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
@@ -26,6 +27,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -70,13 +72,15 @@ class ResponseView {
 
         browser = new Browser(vForm, SWT.NONE);
 
-        Color fg = ResourceUtils.getColor(Styles.GRAY_RGB_TEXT);
-        Color bg = ResourceUtils.getColor(Styles.BACKGROUND_DISABLED);
-        fg= bg = null;
+        // Use system editor colours as defaults; e4 CSS (.http4e-viewer) overrides them.
+        final Display display = Display.getCurrent();
+        final Color defaultFg = display.getSystemColor(SWT.COLOR_LIST_FOREGROUND);
+        final Color defaultBg = display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
 
+        responseText.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-viewer");
         responseText.setFont(ResourceUtils.getFont(Styles.getInstance(parent.getShell()).getFontMonospaced()));
-        responseText.setForeground(fg);
-        responseText.setBackground(bg);
+        responseText.setForeground(defaultFg);
+        responseText.setBackground(defaultBg);
         responseText.setEditable(false);
         responseText.addMouseListener(new MouseAdapter() {
             @Override
@@ -86,9 +90,10 @@ class ResponseView {
         });
         responseText.addKeyListener(new ExecuteKeyListener(() -> model.fireExecute(new ModelEvent(ModelEvent.REQUEST_START, model))));
 
+        jsonText.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-viewer");
         jsonText.setFont(ResourceUtils.getFont(Styles.getInstance(parent.getShell()).getFontMonospaced()));
-        jsonText.setForeground(fg);
-        jsonText.setBackground(bg);
+        jsonText.setForeground(defaultFg);
+        jsonText.setBackground(defaultBg);
         jsonText.setEditable(false);
         jsonText.addMouseListener(new MouseAdapter() {
             @Override

@@ -157,7 +157,8 @@ public class HConfiguration extends SourceViewerConfiguration {
     private RuleBasedScanner getValueScanner() {
         if (valueScanner == null) {
             valueScanner = new HValueScanner();
-            valueScanner.setDefaultReturnToken(new Token(new TextAttribute(ResourceUtils.getColor(Styles.WHITE_RGB_TEXT))));
+            // null foreground → inherit widget foreground (theme-aware)
+            valueScanner.setDefaultReturnToken(new Token(new TextAttribute(null)));
         }
         return valueScanner;
     }
@@ -165,7 +166,8 @@ public class HConfiguration extends SourceViewerConfiguration {
     private RuleBasedScanner getDefaultScanner() {
         if (defaultScanner == null) {
             defaultScanner = new HDefaultScanner();
-            defaultScanner.setDefaultReturnToken(new Token(new TextAttribute(ResourceUtils.getColor(Styles.WHITE_RGB_TEXT))));
+            // null foreground → inherit widget foreground (theme-aware)
+            defaultScanner.setDefaultReturnToken(new Token(new TextAttribute(null)));
         }
         return defaultScanner;
     }

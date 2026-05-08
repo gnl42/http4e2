@@ -15,6 +15,7 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.core.client.view;
 
+import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -25,6 +26,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -96,13 +98,15 @@ class RequestView {
 
     private void doTextControl(final ItemModel model) {
 
-        Color fg = ResourceUtils.getColor(Styles.GRAY_RGB_TEXT);
-        Color bg = ResourceUtils.getColor(Styles.BACKGROUND_DISABLED);
-        fg= bg = null;
+        // Use system editor colours as defaults; e4 CSS (.http4e-viewer) overrides them.
+        final Display display = Display.getCurrent();
+        final Color defaultFg = display.getSystemColor(SWT.COLOR_LIST_FOREGROUND);
+        final Color defaultBg = display.getSystemColor(SWT.COLOR_LIST_BACKGROUND);
 
+        reqText.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-viewer");
         reqText.setFont(ResourceUtils.getFont(Styles.getInstance(reqText.getShell()).getFontMonospaced()));
-        reqText.setForeground(fg);
-        reqText.setBackground(bg);
+        reqText.setForeground(defaultFg);
+        reqText.setBackground(defaultBg);
         reqText.setEditable(false);
         reqText.addMouseListener(new MouseAdapter() {
 
@@ -112,9 +116,10 @@ class RequestView {
             }
         });
 
+        jsonText.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-viewer");
         jsonText.setFont(ResourceUtils.getFont(Styles.getInstance(jsonText.getShell()).getFontMonospaced()));
-        jsonText.setForeground(fg);
-        jsonText.setBackground(bg);
+        jsonText.setForeground(defaultFg);
+        jsonText.setBackground(defaultBg);
         jsonText.setEditable(false);
         jsonText.addMouseListener(new MouseAdapter() {
 

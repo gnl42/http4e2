@@ -49,34 +49,29 @@ public class JSONLineStyler implements LineStyleListener {
         scanner = new JSONcanner();
     }
 
-    Color getColor(final int type) {
+    int[] tokenColorsDark;
+
+    Color getColor(final int type, final boolean dark) {
         if (type < 0 || type >= tokenColors.length) {
             return null;
         }
-        return colors[tokenColors[type]];
+        return dark ? colors[tokenColorsDark[type]] : colors[tokenColors[type]];
     }
 
+    // Light theme colors (indices 0-3)
+    // Dark theme colors (indices 4-7)
     void initializeColors() {
-        // Display display = Display.getDefault();
-        // colors = new Color[] { new Color(display, new RGB(20, 40, 40)), //
-        // black
-        // new Color(display, new RGB(155, 0, 0)), // red
-        // new Color(display, new RGB(0, 140, 0)), // green
-        // new Color(display, new RGB(0, 0, 90)) // blue
-        // };
-        // tokenColors = new int[MAXIMUM_TOKEN];
-        // tokenColors[WORD] = 0;
-        // tokenColors[WHITE] = 0;
-        // tokenColors[KEY] = 3;
-        // tokenColors[COMMENT] = 1;
-        // tokenColors[STRING] = 2;
-        // tokenColors[OTHER] = 0;
-        // tokenColors[NUMBER] = 0;
-
-        colors = new Color[] { ResourceUtils.getColor(Styles.BLACK_RGB_TEXT), // black
-                ResourceUtils.getColor(Styles.KEY), // red
-                ResourceUtils.getColor(Styles.KEY_GREEN), // green
-                ResourceUtils.getColor(Styles.KEY_GREEN) // blue
+        colors = new Color[] {
+                // Light theme (index 0-3)
+                ResourceUtils.getColor(Styles.BLACK_RGB_TEXT),   // 0: default/word - black
+                ResourceUtils.getColor(Styles.KEY),              // 1: key/string - dark blue
+                ResourceUtils.getColor(Styles.KEY_GREEN),        // 2: comment/other - dark green
+                ResourceUtils.getColor(Styles.KEY_GREEN),        // 3: unused (green)
+                // Dark theme (index 4-7)
+                ResourceUtils.getColor(new org.eclipse.swt.graphics.RGB(220, 220, 220)),  // 4: default/word - light grey
+                ResourceUtils.getColor(new org.eclipse.swt.graphics.RGB(156, 220, 254)),  // 5: key/string - light blue
+                ResourceUtils.getColor(new org.eclipse.swt.graphics.RGB(206, 145, 120)),  // 6: string values - orange
+                ResourceUtils.getColor(new org.eclipse.swt.graphics.RGB(181, 206, 168))   // 7: numbers/comment - light green
         };
 
         tokenColors = new int[MAXIMUM_TOKEN];
@@ -87,6 +82,24 @@ public class JSONLineStyler implements LineStyleListener {
         tokenColors[STRING] = 1;
         tokenColors[OTHER] = 2;
         tokenColors[NUMBER] = 1;
+
+        tokenColorsDark = new int[MAXIMUM_TOKEN];
+        tokenColorsDark[WORD] = 4;    // light grey
+        tokenColorsDark[WHITE] = 4;   // light grey
+        tokenColorsDark[KEY] = 5;     // light blue  (quoted keys)
+        tokenColorsDark[COMMENT] = 6; // orange
+        tokenColorsDark[STRING] = 6;  // orange      (string values after :)
+        tokenColorsDark[OTHER] = 4;   // light grey
+        tokenColorsDark[NUMBER] = 7;  // light green
+    }
+
+    private boolean isDarkBackground(final Color bg) {
+        if (bg == null) {
+            return false;
+        }
+        // perceived luminance
+        final double lum = 0.299 * bg.getRed() + 0.587 * bg.getGreen() + 0.114 * bg.getBlue();
+        return lum < 128;
     }
 
     // void disposeColors(){
@@ -116,13 +129,15 @@ public class JSONLineStyler implements LineStyleListener {
         // return;
         // }
         final Color defaultFgColor = ((Control) event.widget).getForeground();
+        final Color bgColor = ((Control) event.widget).getBackground();
+        final boolean dark = isDarkBackground(bgColor);
         scanner.setRange(event.lineText);
         token = scanner.nextToken();
         while (token != EOF) {
             if (token == OTHER) {
                 // do nothing for non-colored tokens
             } else if (token != WHITE) {
-                final Color color = getColor(token);
+                final Color color = getColor(token, dark);
                 // Only create a style if the token color is different than the
                 // widget's default foreground color and the token's style is
                 // not

@@ -595,6 +595,7 @@ class ItemView implements ModelListener, Serializable {
 
     private void initHttpCombo(final Composite top) {
         httpCombo = new Combo(top, SWT.READ_ONLY);
+        httpCombo.setBackground(top.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
         httpCombo.setItems(CoreConstants.HTTP11_METHODS);
         httpCombo.setText(model.getHttpMethod());
         httpCombo.addSelectionListener(new SelectionAdapter() {
