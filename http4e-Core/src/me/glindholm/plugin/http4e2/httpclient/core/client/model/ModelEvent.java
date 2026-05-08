@@ -17,7 +17,7 @@ package me.glindholm.plugin.http4e2.httpclient.core.client.model;
 
 /**
  * This class contains all plug-in states event types
- * 
+ *
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
 public class ModelEvent {

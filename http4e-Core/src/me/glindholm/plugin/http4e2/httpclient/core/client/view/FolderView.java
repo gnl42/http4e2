@@ -25,10 +25,8 @@ import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
@@ -38,9 +36,7 @@ import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ModelEvent;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ModelListener;
 import me.glindholm.plugin.http4e2.httpclient.core.misc.ResourceCache;
-import me.glindholm.plugin.http4e2.httpclient.core.misc.Styles;
 import me.glindholm.plugin.http4e2.httpclient.core.util.BaseUtils;
-import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
 
 public class FolderView implements CoreConstants, ModelListener {
 

@@ -22,7 +22,6 @@ import java.net.ConnectException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -123,10 +122,7 @@ public class BusinessJob {
     }
 
     private void addPostParams(final NativeHttpRequest request, final Map<String, String> parameterizedMap) {
-        if (model.getParameters().isEmpty()) {
-            return;
-        }
-        if (request.getBody() != null && request.getBody().length > 0) {
+        if (model.getParameters().isEmpty() || (request.getBody() != null && request.getBody().length > 0)) {
             return;
         }
         final StringBuilder sb = new StringBuilder();
@@ -171,8 +167,7 @@ public class BusinessJob {
             final List<String> values = me.getValue();
             final StringBuilder sb = new StringBuilder();
             int cnt = 0;
-            for (final Iterator<String> it2 = values.iterator(); it2.hasNext();) {
-                final String val = it2.next();
+            for (final String val : values) {
                 if (cnt != 0) {
                     sb.append(",");
                 }
@@ -197,8 +192,7 @@ public class BusinessJob {
             final List<String> values = me.getValue();
             final StringBuilder sb = new StringBuilder();
             int cnt = 0;
-            for (final Iterator<String> it2 = values.iterator(); it2.hasNext();) {
-                final String val = it2.next();
+            for (final String val : values) {
                 if (cnt != 0) {
                     sb.append(",");
                 }

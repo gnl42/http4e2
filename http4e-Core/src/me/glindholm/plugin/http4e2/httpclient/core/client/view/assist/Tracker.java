@@ -75,8 +75,7 @@ public class Tracker {
 
     public Collection<Tracker> getChildTrackers() {
         final List<Tracker> kids = new ArrayList<>();
-        for (final Iterator<String> iter = childTrackers.keySet().iterator(); iter.hasNext();) {
-            final String key = iter.next();
+        for (final String key : childTrackers.keySet()) {
             kids.add(childTrackers.get(key));
         }
         return kids;

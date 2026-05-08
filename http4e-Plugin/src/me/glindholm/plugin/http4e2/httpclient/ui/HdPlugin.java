@@ -31,7 +31,7 @@ import me.glindholm.plugin.http4e2.httpclient.ui.preferences.PreferenceConstants
 
 /**
  * Main plugin class.
- * 
+ *
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
 public class HdPlugin extends AbstractUIPlugin implements UIConstants {
@@ -104,7 +104,7 @@ public class HdPlugin extends AbstractUIPlugin implements UIConstants {
 
     /**
      * Returns the shared instance
-     * 
+     *
      * @return the shared instance
      */
     public static HdPlugin getDefault() {
@@ -113,7 +113,7 @@ public class HdPlugin extends AbstractUIPlugin implements UIConstants {
 
     /**
      * Returns an image descriptor for the image file at the given plug-in relative path
-     * 
+     *
      * @param path the path
      * @return the image descriptor
      */

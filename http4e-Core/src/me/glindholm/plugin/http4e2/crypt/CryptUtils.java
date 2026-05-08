@@ -264,8 +264,7 @@ public class CryptUtils {
      */
     private static void viewServiceTypes(final PrintStream out) {
         out.println("|----------Service Types----------|");
-        for (final Iterator<String> it = getServiceTypes().iterator(); it.hasNext();) {
-            final String servType = it.next();
+        for (final String servType : getServiceTypes()) {
             out.println("\t---" + servType + "---");
             out.println(getCryptoImpls(servType));
         }

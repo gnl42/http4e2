@@ -23,7 +23,7 @@ import java.io.OutputStream;
  * Logs all data written to the wire LOG.
  *
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
- * 
+ *
  * @since 2.0beta1
  */
 public class ApacheOutputStream extends FilterOutputStream {
@@ -46,7 +46,7 @@ public class ApacheOutputStream extends FilterOutputStream {
     }
 
     /**
-     * 
+     *
      * @see java.io.OutputStream#write(byte[], int, int)
      */
     @Override
@@ -56,7 +56,7 @@ public class ApacheOutputStream extends FilterOutputStream {
     }
 
     /**
-     * 
+     *
      * @see java.io.OutputStream#write(byte[])
      */
     @Override

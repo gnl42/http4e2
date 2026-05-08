@@ -19,7 +19,7 @@ import me.glindholm.plugin.http4e2.httpclient.core.util.BaseUtils;
 
 /**
  * This class contains all images relative path.
- * 
+ *
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
 public interface CoreImages {

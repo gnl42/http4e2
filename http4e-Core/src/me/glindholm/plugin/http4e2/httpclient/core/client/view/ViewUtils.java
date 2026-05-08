@@ -15,6 +15,7 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.core.client.view;
 
+import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ViewForm;
@@ -22,13 +23,9 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Composite;
 
-import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
-
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
-import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ModelEvent;
-import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
 
 /**
  * @author Atanas Roussev (https://nextinterfaces.com)

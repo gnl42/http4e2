@@ -25,7 +25,7 @@ import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
 
 /**
  * Action delegate for all toolbar push-buttons.
- * 
+ *
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
 public class HdActionDelegate implements IViewActionDelegate {

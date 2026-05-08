@@ -16,7 +16,7 @@
 package me.glindholm.plugin.http4e2.editor.xml.format;
 
 /**
- * 
+ *
  * @author Phil Zoio
  */
 public class PIFormattingStrategy extends DefaultFormattingStrategy {

@@ -36,17 +36,17 @@ public class NativeHttpRequest {
         public MultipartPart(final String name, final String value) {
             this.name = name;
             this.value = value;
-            this.isFile = false;
-            this.filePath = null;
-            this.contentType = null;
+            isFile = false;
+            filePath = null;
+            contentType = null;
         }
 
         public MultipartPart(final String name, final String filePath, final String contentType) {
             this.name = name;
             this.filePath = filePath;
             this.contentType = contentType;
-            this.isFile = true;
-            this.value = null;
+            isFile = true;
+            value = null;
         }
     }
 
@@ -115,7 +115,7 @@ public class NativeHttpRequest {
         try {
             final java.net.URI uri = new java.net.URI(url);
             final String path = uri.getPath();
-            return (path == null || path.isEmpty()) ? "/" : path;
+            return path == null || path.isEmpty() ? "/" : path;
         } catch (final Exception e) {
             return "/";
         }

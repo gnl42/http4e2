@@ -17,24 +17,14 @@ package me.glindholm.plugin.http4e2.httpclient.core.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.util.List;
-
-import org.eclipse.swt.custom.StyledText;
-
-
-import me.glindholm.plugin.http4e2.crypt.HexUtils;
-import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
-import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
-import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
-import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.AssistConstants;
-import me.glindholm.plugin.http4e2.httpclient.core.misc.CoreException;
-import java.io.StringReader;
-import java.io.StringWriter;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -44,10 +34,18 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.eclipse.swt.custom.StyledText;
 import org.xml.sax.ErrorHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
+
+import me.glindholm.plugin.http4e2.crypt.HexUtils;
+import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
+import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
+import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
+import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.AssistConstants;
+import me.glindholm.plugin.http4e2.httpclient.core.misc.CoreException;
 
 /**
  * A class with misc utils.

@@ -38,7 +38,6 @@ import me.glindholm.plugin.http4e2.httpclient.core.CoreObjects;
 import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.Utils;
 import me.glindholm.plugin.http4e2.httpclient.core.misc.ResourceCache;
-import me.glindholm.plugin.http4e2.httpclient.core.misc.Styles;
 import me.glindholm.plugin.http4e2.httpclient.core.misc.Styles.FontStyle;
 
 /**

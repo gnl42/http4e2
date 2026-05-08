@@ -240,7 +240,7 @@ public class AuthDialog extends TitleAreaDialog {
     public void populate() {
         final AuthItem item = itemModel.getAuth();
         try {
-            authItem = (item != null) ? item : new AuthItem();
+            authItem = item != null ? item : new AuthItem();
             basicCheck.setSelection(authItem.isBasic());
             digestCheck.setSelection(authItem.isDigest());
             bearerCheck.setSelection(authItem.isBearer());

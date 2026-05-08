@@ -76,8 +76,8 @@ public class HttpPerformer {
         this.nativeRequest = nativeRequest;
         this.proxy = proxy;
         this.authItem = authItem;
-        this.reqPayloadFile = payloadFiles[0];
-        this.respPayloadFile = payloadFiles[1];
+        reqPayloadFile = payloadFiles[0];
+        respPayloadFile = payloadFiles[1];
     }
 
     public void execute() throws IOException {
@@ -187,7 +187,7 @@ public class HttpPerformer {
             throw new IOException("Request cancelled", e);
         } catch (final java.util.concurrent.CompletionException e) {
             final Throwable cause = e.getCause();
-            if (cause instanceof IOException ioe) {
+            if (cause instanceof final IOException ioe) {
                 throw ioe;
             }
             throw new IOException(cause != null ? cause.getMessage() : e.getMessage(), cause);

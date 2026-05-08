@@ -17,7 +17,7 @@ package me.glindholm.plugin.http4e2.httpclient.core;
 
 /**
  * Central repository handling all exception types.
- * 
+ *
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
 public class ExceptionHandler {

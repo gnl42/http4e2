@@ -1,6 +1,5 @@
 package me.glindholm.plugin.http4e2.httpclient.core.util.shared;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -39,12 +38,10 @@ public class Exported {
             }
 
             if (headers != null && headers.size() > 0) {
-                for (final Iterator<String> iter = headers.keySet().iterator(); iter.hasNext();) {
-                    final String key = iter.next();
+                for (final String key : headers.keySet()) {
                     final List<String> list = headers.get(key);
                     if (list != null && list.size() > 0) {
-                        for (final Iterator<String> iterator = list.iterator(); iterator.hasNext();) {
-                            final String val = iterator.next();
+                        for (final String val : list) {
                             buffMain.append(
                                     "\n        bean.addHeader(\"" + StringEscapeUtils.escapeJava(key) + "\", \"" + StringEscapeUtils.escapeJava(val) + "\");");
                         }

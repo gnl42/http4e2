@@ -21,7 +21,7 @@ import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
 
 /**
- * 
+ *
  * @author Phil Zoio
  */
 public class CDataRule implements IRule {

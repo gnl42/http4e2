@@ -29,9 +29,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
-import me.glindholm.plugin.http4e2.httpclient.core.misc.Styles;
-import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
-
 /**
  * @author Atanas Roussev (https://nextinterfaces.com)
  */

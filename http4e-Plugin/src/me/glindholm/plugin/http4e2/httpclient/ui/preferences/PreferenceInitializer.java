@@ -22,13 +22,13 @@ import me.glindholm.plugin.http4e2.httpclient.ui.HdPlugin;
 
 /**
  * @author andreaszbschmidt
- * 
+ *
  */
 public class PreferenceInitializer extends AbstractPreferenceInitializer {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer#initializeDefaultPreferences()
      */

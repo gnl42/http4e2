@@ -18,7 +18,7 @@ package me.glindholm.plugin.http4e2.editor.xml.format;
 import org.eclipse.jface.text.formatter.IFormattingStrategy;
 
 /**
- * 
+ *
  * @author Phil Zoio
  */
 public class DefaultFormattingStrategy implements IFormattingStrategy {

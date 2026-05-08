@@ -18,7 +18,7 @@ package me.glindholm.plugin.http4e2.editor.xml;
 import org.eclipse.swt.graphics.RGB;
 
 /**
- * 
+ *
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
 public interface IXMLColorConstants {

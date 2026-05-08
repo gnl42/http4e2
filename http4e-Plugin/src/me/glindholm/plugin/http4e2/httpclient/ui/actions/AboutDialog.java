@@ -75,7 +75,7 @@ public class AboutDialog extends TitleAreaDialog {
 
     /**
      * Creates the buttons for the button bar
-     * 
+     *
      * @param parent the parent composite
      */
     @Override

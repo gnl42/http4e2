@@ -1,5 +1,7 @@
 package me.glindholm.plugin.http4e2.httpclient.ui;
 
+import java.util.function.Consumer;
+
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.ControlContribution;
 import org.eclipse.jface.action.IContributionItem;
@@ -13,8 +15,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.ViewPart;
-
-import java.util.function.Consumer;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
@@ -205,7 +205,7 @@ public class HdViewPart extends ViewPart {
 
     /**
      * Called when we must grab focus.
-     * 
+     *
      * @see org.eclipse.ui.part.ViewPart#setFocus
      */
     @Override

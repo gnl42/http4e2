@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreObjects;
-import me.glindholm.plugin.http4e2.httpclient.core.misc.Styles;
 import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
 
 /**

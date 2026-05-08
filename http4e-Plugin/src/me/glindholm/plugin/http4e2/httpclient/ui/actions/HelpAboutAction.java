@@ -20,7 +20,7 @@ import org.eclipse.ui.part.ViewPart;
 
 /**
  * Action used for the open historical input again in DependenciesView
- * 
+ *
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
 public class HelpAboutAction extends Action {

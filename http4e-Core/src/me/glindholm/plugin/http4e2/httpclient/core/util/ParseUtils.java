@@ -153,7 +153,7 @@ public class ParseUtils {
 
         final Map<String, ParseBean> paramMap = linesToMap(text);
         final StringBuilder sb = new StringBuilder();
-        for (String key : paramMap.keySet()) {
+        for (final String key : paramMap.keySet()) {
             final ParseBean p = paramMap.get(key);
             for (String val : p.getValues()) {
                 sb.append(key);
@@ -256,7 +256,7 @@ public class ParseUtils {
                 // class?
                 sUrl.append(CoreConstants._AND);
             } else {
-                for (String val : pp.getValues()) {
+                for (final String val : pp.getValues()) {
                     final String parameterizedVal = ParseUtils.getParametizedArg(val, parameterizedArgs);
                     // -- body
                     sBody.append(key);
