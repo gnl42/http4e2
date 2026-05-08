@@ -54,8 +54,7 @@ public class TagContentAssistProcessor implements IContentAssistProcessor {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public ICompletionProposal[] computeCompletionProposals(final ITextViewer viewer, final int offset) {
+     public ICompletionProposal[] computeCompletionProposals(final ITextViewer viewer, final int offset) {
 
         final IDocument document = viewer.getDocument();
         final boolean isAttribute = isAttribute(offset, document);

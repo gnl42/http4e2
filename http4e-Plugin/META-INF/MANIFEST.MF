@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Automatic-Module-Name: me.glindholm.plugin.http4e2.httpclient.ui
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse HttpClient (HTTP4e2)
 Bundle-RequiredExecutionEnvironment: JavaSE-21
@@ -7,7 +8,7 @@ Bundle-Version: 6.0.0.qualifier
 Bundle-Activator: me.glindholm.plugin.http4e2.httpclient.ui.HdPlugin
 Bundle-Vendor: NEXTinterfaces.com
 Bundle-Localization: plugin
-Eclipse-LazyStart: true
+Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
  org.eclipse.core.resources,

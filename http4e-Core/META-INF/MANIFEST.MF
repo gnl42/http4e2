@@ -1,4 +1,5 @@
 Manifest-Version: 1.0
+Automatic-Module-Name: me.glindholm.plugin.http4e2.core
 Bundle-ManifestVersion: 2
 Bundle-Name: Eclipse HttpClient (HTTP4e2) Core
 Bundle-RequiredExecutionEnvironment: JavaSE-21
@@ -24,6 +25,7 @@ Import-Package: org.apache.commons.io,
  org.apache.commons.lang3,
  org.apache.commons.lang3.text;version="3.12.0",
  org.apache.commons.logging;version="1.2.0",
+ org.apache.commons.text;version="[1.15.0,2.0.0)",
  org.apache.velocity,
  org.apache.velocity.app,
  org.apache.velocity.context,

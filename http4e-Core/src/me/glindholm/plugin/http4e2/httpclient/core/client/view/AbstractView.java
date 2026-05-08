@@ -1,8 +1,8 @@
 package me.glindholm.plugin.http4e2.httpclient.core.client.view;
 
+import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.source.SourceViewer;
-import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.StyledText;
@@ -18,7 +18,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -34,7 +33,6 @@ import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.DocumentUt
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.HConfiguration;
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.HContentAssistProcessor;
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.ModelTrackerListener;
-import me.glindholm.plugin.http4e2.httpclient.core.misc.Styles;
 import me.glindholm.plugin.http4e2.httpclient.core.util.BaseUtils;
 import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
 
@@ -256,8 +254,8 @@ public abstract class AbstractView {
     }
 
     void setForeground(final RGB style) {
-        final Color fg = ResourceUtils.getColor(Styles.BLACK_RGB_TEXT);
-        final Color bg = ResourceUtils.getColor(Styles.BACKGROUND_DISABLED);
+//        final Color fg = ResourceUtils.getColor(Styles.BLACK_RGB_TEXT);
+//        final Color bg = ResourceUtils.getColor(Styles.BACKGROUND_DISABLED);
 
 //        styledText.setForeground(fg);
     }

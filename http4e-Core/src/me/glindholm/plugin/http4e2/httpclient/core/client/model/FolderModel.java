@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.text.StrTokenizer;
+import org.apache.commons.text.StringTokenizer;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
@@ -43,7 +43,7 @@ import me.glindholm.plugin.http4e2.httpclient.core.util.BaseUtils;
 /**
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
-public class FolderModel implements Model {
+public class FolderModel implements Model, Serializable {
 
     private static final long serialVersionUID = -6512224765472818414L;
     public static final String PREF_VIEW_NAME = "v";
@@ -57,7 +57,7 @@ public class FolderModel implements Model {
 
     public FolderModel(final String availableProxiesString, final String availableKeystoresString) {
         availableProxies.add(ProxyItem.createDirectConnectionProxy());
-        for (final String proxysettings : new StrTokenizer(availableProxiesString, "#").getTokenArray()) {
+        for (final String proxysettings : new StringTokenizer(availableProxiesString, "#").getTokenArray()) {
             try {
                 availableProxies.add(ProxyItem.createFromString(proxysettings));
             } catch (final Exception e) {
