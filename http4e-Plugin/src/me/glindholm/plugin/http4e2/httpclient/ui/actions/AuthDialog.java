@@ -47,12 +47,14 @@ public class AuthDialog extends TitleAreaDialog {
 
     private Button basicCheck;
     private Button digestCheck;
+    private Button bearerCheck;
     private Button preemptiveCheck;
     private Text usernameBox;
     private Text passBox;
     private Text hostBox;
     private Text portBox;
     private Text realmBox;
+    private Text bearerTokenBox;
     private Button okBtn;
 
     /** Working copy of auth settings; written back to the model on Apply. */
@@ -70,7 +72,7 @@ public class AuthDialog extends TitleAreaDialog {
     protected Control createContents(final Composite parent) {
         final Control contents = super.createContents(parent);
         setTitle("Authentication");
-        setMessage("BASIC and DIGEST Authentication.");
+        setMessage("BASIC, DIGEST, and BEARER Authentication.");
         populate();
         return contents;
     }
@@ -123,9 +125,22 @@ public class AuthDialog extends TitleAreaDialog {
                 authItem.setDigest(digestCheck.getSelection());
             }
         });
+
+        bearerCheck = new Button(authGroup, SWT.CHECK);
+        bearerCheck.setText("BEARER");
+        bearerCheck.setSelection(false);
+        bearerCheck.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(final SelectionEvent e) {
+                enableBoxes();
+                okBtn.setEnabled(isEnabled());
+                authItem.setBearer(bearerCheck.getSelection());
+            }
+        });
+
         final GridData authGroupData = new GridData(GridData.FILL_HORIZONTAL);
         authGroupData.widthHint = 160;
-        authGroupData.heightHint = 70;
+        authGroupData.heightHint = 90;
         authGroup.setLayoutData(authGroupData);
 
         final Group preGroup = new Group(composite2, SWT.NONE);
@@ -153,12 +168,14 @@ public class AuthDialog extends TitleAreaDialog {
     }
 
     private void enableBoxes() {
-        final boolean active = basicCheck.getSelection() || digestCheck.getSelection();
-        usernameBox.setEnabled(active);
-        passBox.setEnabled(active);
-        hostBox.setEnabled(active);
-        portBox.setEnabled(active);
-        realmBox.setEnabled(active);
+        final boolean basicOrDigest = basicCheck.getSelection() || digestCheck.getSelection();
+        final boolean bearer = bearerCheck.getSelection();
+        usernameBox.setEnabled(basicOrDigest);
+        passBox.setEnabled(basicOrDigest);
+        hostBox.setEnabled(basicOrDigest);
+        portBox.setEnabled(basicOrDigest);
+        realmBox.setEnabled(basicOrDigest);
+        bearerTokenBox.setEnabled(bearer);
     }
 
     private void createControlWidgets(final Composite controlGroup) {
@@ -207,6 +224,17 @@ public class AuthDialog extends TitleAreaDialog {
         realmBox = new Text(group, SWT.BORDER);
         realmBox.setLayoutData(grData);
         realmBox.addModifyListener(e -> authItem.setRealm(realmBox.getText()));
+
+        new Label(group, SWT.SEPARATOR | SWT.HORIZONTAL).setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+        new Label(group, SWT.SEPARATOR | SWT.HORIZONTAL).setLayoutData(new GridData(GridData.FILL_HORIZONTAL));
+
+        new Label(group, SWT.NONE).setText("Bearer Token");
+        bearerTokenBox = new Text(group, SWT.BORDER);
+        bearerTokenBox.setLayoutData(grData);
+        bearerTokenBox.addModifyListener(e -> {
+            okBtn.setEnabled(isEnabled());
+            authItem.setBearerToken(bearerTokenBox.getText());
+        });
     }
 
     public void populate() {
@@ -215,12 +243,14 @@ public class AuthDialog extends TitleAreaDialog {
             authItem = (item != null) ? item : new AuthItem();
             basicCheck.setSelection(authItem.isBasic());
             digestCheck.setSelection(authItem.isDigest());
+            bearerCheck.setSelection(authItem.isBearer());
             preemptiveCheck.setSelection(authItem.isPreemtptive());
             usernameBox.setText(authItem.getUsername());
             passBox.setText(authItem.getPass());
             hostBox.setText(authItem.getHost());
             portBox.setText(authItem.getPort());
             realmBox.setText(authItem.getRealm());
+            bearerTokenBox.setText(authItem.getBearerToken());
 
             if (isEnabled()) {
                 okBtn.setEnabled(true);
@@ -232,6 +262,9 @@ public class AuthDialog extends TitleAreaDialog {
     }
 
     private boolean isEnabled() {
+        if (bearerCheck.getSelection()) {
+            return !BaseUtils.isEmpty(bearerTokenBox.getText());
+        }
         return (basicCheck.getSelection() || digestCheck.getSelection())
                 && !BaseUtils.isEmpty(usernameBox.getText())
                 && !BaseUtils.isEmpty(passBox.getText());
@@ -255,6 +288,7 @@ public class AuthDialog extends TitleAreaDialog {
             public void widgetSelected(final SelectionEvent e) {
                 authItem.setBasic(false);
                 authItem.setDigest(false);
+                authItem.setBearer(false);
                 itemModel.setAuth(authItem);
                 itemModel.fireExecute(new ModelEvent(ModelEvent.AUTH, itemModel));
             }

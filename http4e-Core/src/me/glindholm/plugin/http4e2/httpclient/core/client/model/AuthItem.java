@@ -11,6 +11,8 @@ public class AuthItem implements Serializable {
     private boolean isPreemtptive;
     private boolean isDigest;
     private boolean isBasic;
+    private boolean isBearer;
+    private String bearerToken;
     private String username;
     private String pass;
     private String host;
@@ -39,6 +41,22 @@ public class AuthItem implements Serializable {
 
     public void setBasic(final boolean isBasic) {
         this.isBasic = isBasic;
+    }
+
+    public boolean isBearer() {
+        return isBearer;
+    }
+
+    public void setBearer(final boolean isBearer) {
+        this.isBearer = isBearer;
+    }
+
+    public String getBearerToken() {
+        return BaseUtils.noNull(bearerToken);
+    }
+
+    public void setBearerToken(final String bearerToken) {
+        this.bearerToken = bearerToken;
     }
 
     public String getUsername() {
@@ -83,7 +101,7 @@ public class AuthItem implements Serializable {
 
     @Override
     public String toString() {
-        return "AuthItem{isPreemtptive=" + isPreemtptive + ", isDigest=" + isDigest + ", isBasic=" + isBasic + ", username=" + username + ", pass=" + pass
+        return "AuthItem{isPreemtptive=" + isPreemtptive + ", isDigest=" + isDigest + ", isBasic=" + isBasic + ", isBearer=" + isBearer + ", username=" + username + ", pass=" + pass
                 + ", host=" + host + ", port=" + port + ", realm=" + realm + "}";
     }
 

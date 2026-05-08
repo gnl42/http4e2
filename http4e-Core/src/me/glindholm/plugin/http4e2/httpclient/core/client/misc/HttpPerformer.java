@@ -122,6 +122,7 @@ public class HttpPerformer {
         // Handle Basic auth by adding header
         if (authItem != null) {
             applyBasicAuth(builder);
+            applyBearerAuth(builder);
         }
 
         // Set method + body
@@ -341,6 +342,17 @@ public class HttpPerformer {
         }
         final String encoded = Base64.getEncoder().encodeToString((user + ":" + pass).getBytes(StandardCharsets.UTF_8));
         builder.header("Authorization", "Basic " + encoded);
+    }
+
+    private void applyBearerAuth(final HttpRequest.Builder builder) {
+        if (!authItem.isBearer()) {
+            return;
+        }
+        final String token = authItem.getBearerToken();
+        if (BaseUtils.isEmpty(token)) {
+            return;
+        }
+        builder.header("Authorization", "Bearer " + token);
     }
 
     private BodyPublisher buildMultipartPublisher(final List<MultipartPart> parts, final String boundary) throws IOException {
