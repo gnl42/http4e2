@@ -20,6 +20,8 @@ public class ExportMenuAction extends Action implements IMenuCreator {
     private Menu menu;
     private Action javaHttp3Action;
     private Action javaHttp4Action;
+    private Action javaHttp5Action;
+    private Action javaHttp21Action;
     private Action jmeterAction;
     private Action prototypeAction;
     private Action jqueryAction;
@@ -72,8 +74,8 @@ public class ExportMenuAction extends Action implements IMenuCreator {
         if (true) {
             new MenuItem(menu, SWT.SEPARATOR);
             addActionToMenu(menu, getEmptyAction());
-            addActionToMenu(menu, getJavaHttp4Action());
-            addActionToMenu(menu, getJavaHttp3Action());
+            addActionToMenu(menu, getJavaHttp21Action());
+            addActionToMenu(menu, getJavaHttp5Action());
             addActionToMenu(menu, getJSAction());
             addActionToMenu(menu, getPrototypeAction());
             addActionToMenu(menu, getJqueryAction());
@@ -100,18 +102,18 @@ public class ExportMenuAction extends Action implements IMenuCreator {
         return printAction;
     }
 
-    private Action getJavaHttp3Action() {
-        if (javaHttp3Action == null) {
-            javaHttp3Action = new ExportJavaHttp3Action(view);
+    private Action getJavaHttp5Action() {
+        if (javaHttp5Action == null) {
+            javaHttp5Action = new ExportJavaHttp5Action(view);
         }
-        return javaHttp3Action;
+        return javaHttp5Action;
     }
 
-    private Action getJavaHttp4Action() {
-        if (javaHttp4Action == null) {
-            javaHttp4Action = new ExportJavaHttp4Action(view);
+    private Action getJavaHttp21Action() {
+        if (javaHttp21Action == null) {
+            javaHttp21Action = new ExportJavaHttp21Action(view);
         }
-        return javaHttp4Action;
+        return javaHttp21Action;
     }
 
     private Action getJMeterAction() {

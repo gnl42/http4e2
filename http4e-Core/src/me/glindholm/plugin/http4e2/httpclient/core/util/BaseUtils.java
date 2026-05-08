@@ -252,6 +252,18 @@ public class BaseUtils {
         new ExportTemplateTransformer("/resources/java.vm", bean).doWrite(writer);
     }
 
+    public static void writeJavaHttpClient5(final ItemModel iModel, final Writer writer) throws FileNotFoundException {
+        final HttpBean bean = Utils.modelToHttpBean(iModel);
+        bean.filterJava();
+        new ExportTemplateTransformer("/resources/java5.vm", bean).doWrite(writer);
+    }
+
+    public static void writeJavaHttp21(final ItemModel iModel, final Writer writer) throws FileNotFoundException {
+        final HttpBean bean = Utils.modelToHttpBean(iModel);
+        bean.filterJava();
+        new ExportTemplateTransformer("/resources/java21http.vm", bean).doWrite(writer);
+    }
+
     public static void writeJsPrototype(final ItemModel iModel, final Writer writer) throws FileNotFoundException {
         final HttpBean bean = Utils.modelToHttpBean(iModel);
         bean.filterJava();
