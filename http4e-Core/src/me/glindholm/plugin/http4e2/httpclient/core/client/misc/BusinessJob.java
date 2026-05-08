@@ -26,7 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.swt.widgets.Composite;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.swt.widgets.Display;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
@@ -44,29 +48,57 @@ import me.glindholm.plugin.http4e2.httpclient.core.util.ParseUtils;
 /**
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
-public class BusinessJob {
+public class BusinessJob extends Job {
+
+    public static final Object FAMILY = new Object();
 
     private ItemModel model;
     private NativeHttpRequest nativeRequest = null;
     private volatile HttpPerformer currentPerformer = null;
-    private boolean buzDisposed = false;
+    private volatile boolean buzDisposed = false;
     private static Map<String, String> contentTypes;
 
-    public void execute(final ItemModel model, final Composite composite) {
+    public BusinessJob() {
+        super("http4e: executing request…");
+        setUser(false);
+        setSystem(false);
+    }
+
+    /**
+     * Sets the model and schedules the job directly (non-IDE / fallback path).
+     */
+    public void execute(final ItemModel model) {
+        prepare(model);
+        schedule();
+    }
+
+    /**
+     * Sets the model without scheduling — caller is responsible for scheduling,
+     * e.g. via IWorkbenchSiteProgressService.schedule(job, ...).
+     */
+    public void prepare(final ItemModel model) {
         buzDisposed = false;
         this.model = model;
+    }
 
-        @SuppressWarnings("unchecked")
-		final Map<String, String> parameterizedArgs = (Map<String, String>) CoreContext.getContext().getObject(CoreObjects.PARAMETERIZE_ARGS);
+    @Override
+    public boolean belongsTo(final Object family) {
+        return family == FAMILY;
+    }
 
+    @Override
+    protected IStatus run(final IProgressMonitor monitor) {
+        monitor.beginTask("Executing HTTP request…", IProgressMonitor.UNKNOWN);
         try {
+            @SuppressWarnings("unchecked")
+            final Map<String, String> parameterizedArgs = (Map<String, String>) CoreContext.getContext().getObject(CoreObjects.PARAMETERIZE_ARGS);
+
             nativeRequest = new NativeHttpRequest();
             nativeRequest.setMethod(model.getHttpMethod());
             nativeRequest.setUrl(model.getUrl());
 
             if (CoreConstants.HTTP_GET.equals(model.getHttpMethod())) {
                 addHeaders(nativeRequest, parameterizedArgs);
-
             } else if (CoreConstants.HTTP_POST.equals(model.getHttpMethod())) {
                 if (isMultipart(model)) {
                     nativeRequest.setMultipart(true);
@@ -81,19 +113,68 @@ public class BusinessJob {
                         throw new CoreException(CoreException.UNSUPPORTED_ENCODING, e);
                     }
                 }
-
             } else if (CoreConstants.HTTP_OPTIONS.equals(model.getHttpMethod())) {
                 addHeaders(nativeRequest, parameterizedArgs);
-
             } else {
                 throw new CoreException(CoreException.HTTP_METHOD_NOT_IMPLEMENTED, "Method '" + model.getHttpMethod() + "' not implemented.");
             }
 
-            doExecute(nativeRequest, composite);
+            if (monitor.isCanceled()) {
+                syncExec(() -> model.fireExecute(new ModelEvent(ModelEvent.REQUEST_ABORTED, model)));
+                return Status.CANCEL_STATUS;
+            }
+
+            final String[] result = doExecute(nativeRequest, monitor);
+            if (result != null) {
+                syncExec(() -> {
+                    model.setRequest(result[0]);
+                    model.fireExecute(new ModelEvent(ModelEvent.REQUEST_APPENDED, model));
+                    model.setResponse(result[1]);
+                    if (result.length > 2) {
+                        model.setCertificateInfo(result[2]);
+                    }
+                    if (result.length > 3) {
+                        model.setSelfSignedCert(Boolean.parseBoolean(result[3]));
+                    }
+                    model.fireExecute(new ModelEvent(ModelEvent.REQUEST_STOPPED, model));
+                });
+            }
+            return Status.OK_STATUS;
 
         } catch (final Throwable e) {
-            e.printStackTrace();
-            abort(true);
+            ExceptionHandler.handle(e);
+            syncExec(() -> abort(true));
+            return Status.CANCEL_STATUS;
+        } finally {
+            monitor.done();
+        }
+    }
+
+    private String[] doExecute(final NativeHttpRequest request, final IProgressMonitor monitor) {
+        final CoreContext ctx = CoreContext.getContext();
+        final AuthItem authItem = model.getAuth();
+        final ProxyItem proxyItem = (ProxyItem) ctx.getObject(CoreObjects.PROXY_ITEM);
+        final String[] files = { generateFilePath("REQ.txt", request), generateFilePath("RESP.txt", request) };
+        model.setPayloadFiles(files);
+        syncExec(() -> model.fireExecute(new ModelEvent(ModelEvent.PAYLOAD_FILES, model)));
+
+        final HttpPerformer httpPerformer = new HttpPerformer(request, proxyItem, authItem, files);
+        currentPerformer = httpPerformer;
+        try {
+            httpPerformer.execute();
+            return new String[] { httpPerformer.getRequest(), httpPerformer.getResponse(),
+                    httpPerformer.getCertificateInfo(), String.valueOf(httpPerformer.isSelfSignedCert()) };
+        } catch (final ConnectException e) {
+            return new String[] { httpPerformer.getRequest(),
+                    CoreMessages.CONNECTION_REFUSED + "[" + model.getHttpMethod() + " " + model.getUrl() + "]\n\n\t" + getProxyInfo(model) };
+        } catch (final IOException | IllegalStateException e) {
+            return new String[] { httpPerformer.getRequest(),
+                    CoreMessages.CONNECTION_IO_ERR + "[" + model.getHttpMethod() + " " + model.getUrl() + "]\n\n\t" + getProxyInfo(model) };
+        } catch (final Throwable e) {
+            return new String[] { httpPerformer.getRequest(),
+                    CoreMessages.CONNECTION_UNKNOWN + "[" + model.getHttpMethod() + " " + model.getUrl() + "]\n\n\t" + getProxyInfo(model) };
+        } finally {
+            currentPerformer = null;
         }
     }
 
@@ -175,7 +256,6 @@ public class BusinessJob {
                 cnt++;
             }
             final String parameterizedVal = ParseUtils.getParametizedArg(sb.toString(), parameterizedMap);
-
             if (parameterizedVal.startsWith("@")) {
                 final String path = parameterizedVal.substring(1).trim().replace('\\', '/');
                 final String contentType = getContentType(getFileExt(path));
@@ -202,8 +282,6 @@ public class BusinessJob {
             final String parameterizedVal = ParseUtils.getParametizedArg(sb.toString(), parameterizedMap);
             request.addHeader(key, parameterizedVal);
         }
-
-        // Add User-Agent if not already present
         final boolean userAgentExist = request.getHeaders().keySet().stream()
                 .anyMatch(k -> CoreConstants.HEADER_USER_AGENT.equalsIgnoreCase(k));
         if (!userAgentExist) {
@@ -211,71 +289,34 @@ public class BusinessJob {
         }
     }
 
-    private void doExecute(final NativeHttpRequest request, final Composite composite) {
-        final JobListener jobListener = new JobListener() {
+    public synchronized void abort(final boolean withNotify) {
+        if (withNotify && model != null) {
+            syncExec(() -> model.fireExecute(new ModelEvent(ModelEvent.REQUEST_ABORTED, model)));
+        }
+        buzDisposed = true;
+        final HttpPerformer performer = currentPerformer;
+        if (performer != null) {
+            performer.abort();
+        }
+        cancel();
+    }
 
-            private boolean jDisposed;
+    /** Runs r on the UI thread; safe to call from any thread. */
+    private static void syncExec(final Runnable r) {
+        final Display display = Display.getDefault();
+        if (display == null || display.isDisposed()) {
+            return;
+        }
+        if (Display.getCurrent() != null) {
+            // already on UI thread
+            r.run();
+        } else {
+            display.syncExec(r);
+        }
+    }
 
-            @Override
-            public boolean isDisposed() {
-                return jDisposed;
-            }
-
-            @Override
-            public void update(final Object obj) {
-                synchronized (BusinessJob.this) {
-                    if (BusinessJob.this.isDisposed()) {
-                        return;
-                    }
-                    final String[] values = (String[]) obj;
-                    model.setRequest(values[0]);
-                    model.fireExecute(new ModelEvent(ModelEvent.REQUEST_APPENDED, model));
-                    model.setResponse(values[1]);
-                    if (values.length > 2) {
-                        model.setCertificateInfo(values[2]);
-                    }
-                    if (values.length > 3) {
-                        model.setSelfSignedCert(Boolean.parseBoolean(values[3]));
-                    }
-                    model.fireExecute(new ModelEvent(ModelEvent.REQUEST_STOPPED, model));
-                }
-                jDisposed = true;
-            }
-
-            @Override
-            public Object execute() {
-                final CoreContext ctx = CoreContext.getContext();
-                final AuthItem authItem = model.getAuth();
-                final ProxyItem proxyItem = (ProxyItem) ctx.getObject(CoreObjects.PROXY_ITEM);
-                final String[] files = { generateFilePath("REQ.txt", request), generateFilePath("RESP.txt", request) };
-                model.setPayloadFiles(files);
-                model.fireExecute(new ModelEvent(ModelEvent.PAYLOAD_FILES, model));
-
-                final HttpPerformer httpPerformer = new HttpPerformer(request, proxyItem, authItem, files);
-                currentPerformer = httpPerformer;
-                try {
-                    httpPerformer.execute();
-                    return new String[] { httpPerformer.getRequest(), httpPerformer.getResponse(),
-                            httpPerformer.getCertificateInfo(), String.valueOf(httpPerformer.isSelfSignedCert()) };
-
-                } catch (final ConnectException e) {
-                    return new String[] { httpPerformer.getRequest(),
-                            CoreMessages.CONNECTION_REFUSED + "[" + model.getHttpMethod() + " " + model.getUrl() + "]\n\n\t" + getProxyInfo(model) };
-
-                } catch (final IOException | IllegalStateException e) {
-                    return new String[] { httpPerformer.getRequest(),
-                            CoreMessages.CONNECTION_IO_ERR + "[" + model.getHttpMethod() + " " + model.getUrl() + "]\n\n\t" + getProxyInfo(model) };
-
-                } catch (final Throwable e) {
-                    return new String[] { httpPerformer.getRequest(),
-                            CoreMessages.CONNECTION_UNKNOWN + "[" + model.getHttpMethod() + " " + model.getUrl() + "]\n\n\t" + getProxyInfo(model) };
-                } finally {
-                    currentPerformer = null;
-                }
-            }
-        };
-        final JobRunner jobRunner = new JobRunner(composite, jobListener);
-        jobRunner.run();
+    public boolean isDisposed() {
+        return buzDisposed;
     }
 
     private String getProxyInfo(final ItemModel m) {
@@ -285,21 +326,6 @@ public class BusinessJob {
         } else {
             return "";
         }
-    }
-
-    public synchronized void abort(final boolean withNotify) {
-        if (withNotify) {
-            model.fireExecute(new ModelEvent(ModelEvent.REQUEST_ABORTED, model));
-        }
-        buzDisposed = true;
-        final HttpPerformer performer = currentPerformer;
-        if (performer != null) {
-            performer.abort();
-        }
-    }
-
-    public boolean isDisposed() {
-        return buzDisposed;
     }
 
     private String generateFilePath(final String ext, final NativeHttpRequest request) {

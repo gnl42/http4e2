@@ -34,5 +34,6 @@ public interface CoreObjects {
     String PROXY_ITEM = "proxy.bean";
     String PARAMETERIZE_ARGS = "parameterize.args";
     String RESPONSE_VIEW_SIZE = "resp.size";
+    String PROGRESS_SERVICE = "progress.service";
 
 }

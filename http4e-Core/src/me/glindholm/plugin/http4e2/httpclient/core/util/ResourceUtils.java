@@ -26,6 +26,7 @@ import java.util.Properties;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
@@ -57,6 +58,14 @@ public class ResourceUtils {
         }
     }
 
+    public static ImageDescriptor getImageDescriptor(final String pluginID, final String image) {
+        if (Utils.isIDE()) {
+            return AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, image);
+        } else {
+            return ImageDescriptor.createFromFile(null, image);
+        }
+    }
+
     public static Image getImage(final String pluginID, final String image) {
         /*--- create from class file location
         ImageDescriptor iDescr = ImageDescriptor.createFromFile(CoreResources.class, name);
@@ -67,7 +76,7 @@ public class ResourceUtils {
         ISharedImages images = workbench.getSharedImages();
         image = images.getImage(ISharedImages.IMG_OBJ_FOLDER);
         --- image from plugin
-        MyPlugin.getImageDescriptor("icons/a_image.gif").createImage();
+        MyPlugin.getImageDescriptor("icons/a_image.png").createImage();
         AbstractUIPlugin.imageDescriptorFromPlugin(myPluginID, image)).createImage();
          */
         if (Utils.isIDE()) {

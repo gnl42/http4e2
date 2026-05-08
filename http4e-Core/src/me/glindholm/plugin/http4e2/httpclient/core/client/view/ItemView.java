@@ -22,9 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
@@ -54,7 +52,6 @@ import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreMessages;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreObjects;
 import me.glindholm.plugin.http4e2.httpclient.core.client.misc.BusinessJob;
-import me.glindholm.plugin.http4e2.httpclient.core.client.misc.EclipseHttpJob;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.AuthItem;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ModelEvent;
@@ -89,15 +86,12 @@ class ItemView implements ModelListener, Serializable {
     SashForm hSash;
     SashForm vSash;
 
-    private Animator loadingAnimator;
     private ToolItem stopItem;
     private Label lblAuth;
     private Label lblProxy;
 
     private final ItemState state = new ItemState();
     private final BusinessJob buzJob = new BusinessJob();
-
-    Job httpJob;
     private boolean maximizedHeaders = false;
     private boolean maximizedParams = false;
     private boolean maximizedBody = false;
@@ -147,15 +141,20 @@ class ItemView implements ModelListener, Serializable {
 
             requestView.setHttpText(CoreConstants.EMPTY_TEXT);
             responseView.setHttpText(CoreConstants.EMPTY_TEXT);
-            loadingAnimator.start();
             stopItem.setEnabled(true);
             state.setState(ItemState.HTTP_STARTED);
-            if (Utils.isIDE()) {
-                httpJob = new EclipseHttpJob(3000, true, true);
-            }
 
-            // starting asyncr thread
-            buzJob.execute(ItemView.this.model, vSash);
+            // Schedule through IWorkbenchSiteProgressService so Eclipse shows:
+            //  - a spinner on the view's tab
+            //  - an indeterminate progress bar + cancel button in the status bar
+            final org.eclipse.ui.progress.IWorkbenchSiteProgressService progressService =
+                    (org.eclipse.ui.progress.IWorkbenchSiteProgressService) CoreContext.getContext().getObject(CoreObjects.PROGRESS_SERVICE);
+            buzJob.prepare(ItemView.this.model); // sets model without scheduling
+            if (progressService != null) {
+                progressService.schedule(buzJob, 0, true); // true = show in status bar
+            } else {
+                buzJob.schedule();
+            }
 
             if (tabItem.isDisposed()) {
                 return;
@@ -181,23 +180,15 @@ class ItemView implements ModelListener, Serializable {
             if (state.getState() != ItemState.HTTP_STOPPED) {
                 responseView.setHttpText(((ItemModel) e.getModel()).getResponse());
                 responseView.setCertificateInfo(((ItemModel) e.getModel()).getCertificateInfo(), ((ItemModel) e.getModel()).isSelfSignedCert());
-                loadingAnimator.stop();
                 stopItem.setEnabled(false);
                 state.setState(ItemState.HTTP_STOPPED);
-                if (httpJob != null) {
-                    httpJob.cancel();
-                }
             }
 
         } else if (e.getType() == ModelEvent.REQUEST_ABORTED) {
             if (state.getState() != ItemState.HTTP_ABORTED) {
                 responseView.setHttpText(CoreMessages.ABORTED);
-                loadingAnimator.stop();
                 stopItem.setEnabled(false);
                 state.setState(ItemState.HTTP_ABORTED);
-                if (httpJob != null) {
-                    httpJob.cancel();
-                }
             }
 
         } else if (e.getType() == ModelEvent.FOLDER_INIT) {
@@ -510,11 +501,6 @@ class ItemView implements ModelListener, Serializable {
             }
         });
 
-        final Image backgroundImage = ResourceUtils.getImage(CoreConstants.PLUGIN_CORE, CoreImages.LOADING_OFF);
-        final CLabel ctrl = new CLabel(parent, SWT.NONE);
-        ctrl.setImage(backgroundImage);
-        loadingAnimator = new Animator(ctrl, backgroundImage);
-
         vForm.setTopCenter(bar);
     }
 
@@ -688,9 +674,6 @@ class ItemView implements ModelListener, Serializable {
     }
 
     private void doDispose() {
-        if (httpJob != null) {
-            httpJob.cancel();
-        }
         buzJob.abort(false);
     }
 

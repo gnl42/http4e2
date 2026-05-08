@@ -2,20 +2,25 @@ package me.glindholm.plugin.http4e2.httpclient.ui;
 
 import java.util.function.Consumer;
 
+import org.eclipse.core.runtime.jobs.IJobChangeEvent;
+import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobChangeAdapter;
 import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.ControlContribution;
 import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IToolBarManager;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ShellEvent;
-import org.eclipse.swt.events.ShellListener;
+import org.eclipse.swt.events.ShellEvent;import org.eclipse.swt.events.ShellListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IActionBars;
+import org.eclipse.ui.IViewSite;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
 
+import me.glindholm.plugin.http4e2.httpclient.core.client.misc.BusinessJob;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
@@ -40,6 +45,7 @@ import me.glindholm.plugin.http4e2.httpclient.ui.actions.ProxyAction;
 public class HdViewPart extends ViewPart {
 
     private HdContentViewer viewer;
+    private IWorkbenchSiteProgressService progressService;
 
     public HdViewPart() {
     }
@@ -102,15 +108,15 @@ public class HdViewPart extends ViewPart {
         toolbar.add(space);
 
         final AddTabAction tabAction = new AddTabAction(this);
-        tabAction.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.TAB_OPEN)));
+        tabAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.TAB_OPEN));
         toolbar.add(tabAction);
 
         final DuplicateTabAction tabDuplicate = new DuplicateTabAction(this);
-        tabDuplicate.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.TAB_DUPLICATE)));
+        tabDuplicate.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.TAB_DUPLICATE));
         toolbar.add(tabDuplicate);
 
         final ParameterizeAction parameterizeAction = new ParameterizeAction(this);
-        parameterizeAction.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PARAMETERIZE)));
+        parameterizeAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.PARAMETERIZE));
         toolbar.add(parameterizeAction);
 
         // TabCloseAction tabCloseAction = new TabCloseAction(this);
@@ -119,7 +125,7 @@ public class HdViewPart extends ViewPart {
         // toolbar.add(tabCloseAction);
 
         final ImportMenuAction importAction = new ImportMenuAction(this);
-        importAction.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.IMPORT)));
+        importAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.IMPORT));
         toolbar.add(importAction);
 
         // ExportJavaHttp3Action exportAction = new ExportJavaHttp3Action(this);
@@ -133,21 +139,45 @@ public class HdViewPart extends ViewPart {
         // toolbar.add(toolsAction);
 
         final ExportMenuAction exportMenuAction = new ExportMenuAction(this);
-        exportMenuAction.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.EXPORT)));
+        exportMenuAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.EXPORT));
         toolbar.add(exportMenuAction);
 
         final ProxyAction proxyAction = new ProxyAction(this);
-        proxyAction.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY)));
+        proxyAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.PROXY));
         toolbar.add(proxyAction);
 
         final HelpDropDownAction helpAction = new HelpDropDownAction(this);
-        helpAction.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.HELP)));
+        helpAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.HELP));
         helpAction.setEnabled(true);
         toolbar.add(helpAction);
 
         viewer = new HdContentViewer(parent);
 
+        // Propagate busy cursor to every child widget in this view so it shows
+        // consistently, not just on labels where the shell cursor bleeds through.
+        final org.eclipse.swt.graphics.Cursor waitCursor =
+                parent.getDisplay().getSystemCursor(org.eclipse.swt.SWT.CURSOR_WAIT);
+        final org.eclipse.swt.graphics.Cursor normalCursor = null; // null = restore inherited cursor
+        Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void running(final IJobChangeEvent event) {
+                if (event.getJob().belongsTo(BusinessJob.FAMILY)) {
+                    parent.getDisplay().asyncExec(() -> setCursorOnTree(parent, waitCursor));
+                }
+            }
+            @Override
+            public void done(final IJobChangeEvent event) {
+                if (event.getJob().belongsTo(BusinessJob.FAMILY)) {
+                    parent.getDisplay().asyncExec(() -> setCursorOnTree(parent, normalCursor));
+                }
+            }
+        });
+
         final CoreContext ctx = CoreContext.getContext();
+
+        // Register the Eclipse progress service so Core can schedule jobs with busy indicator
+        // (progressService field is set in init() and showBusyForFamily is already registered)
+        ctx.putObject(CoreObjects.PROGRESS_SERVICE, progressService);
         // Register per-tab auth dialog opener: Consumer<ItemModel> called with the clicked tab's model
         final Consumer<ItemModel> authOpener = itemModel -> {
             try {
@@ -222,6 +252,53 @@ public class HdViewPart extends ViewPart {
         super.dispose();
     }
 
+    @Override
+    public void init(final IViewSite site) throws PartInitException {
+        super.init(site);
+        progressService = site.getAdapter(IWorkbenchSiteProgressService.class);
+        if (progressService != null) {
+            progressService.showBusyForFamily(BusinessJob.FAMILY);
+        }
+
+        // Drive the view tab title to reflect request activity.
+        // We avoid mutating MPart.getTags() directly because in this Eclipse version
+        // UIEventPublisher incorrectly uses a wildcard topic for publishing, causing
+        // an IllegalArgumentException from the OSGi EventBroker.
+        final String originalName = site.getRegisteredName();
+        Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
+            @Override
+            public void running(final IJobChangeEvent event) {
+                if (event.getJob().belongsTo(BusinessJob.FAMILY)) {
+                    site.getShell().getDisplay().asyncExec(
+                            () -> setPartName("⟳ " + originalName));
+                }
+            }
+
+            @Override
+            public void done(final IJobChangeEvent event) {
+                if (event.getJob().belongsTo(BusinessJob.FAMILY)) {
+                    site.getShell().getDisplay().asyncExec(
+                            () -> setPartName(originalName));
+                }
+            }
+        });
+    }
+
+    /** Recursively sets the cursor on a composite and all its children. */
+    private static void setCursorOnTree(final org.eclipse.swt.widgets.Composite root,
+            final org.eclipse.swt.graphics.Cursor cursor) {
+        if (root == null || root.isDisposed()) {
+            return;
+        }
+        root.setCursor(cursor);
+        for (final Control child : root.getChildren()) {
+            child.setCursor(cursor);
+            if (child instanceof org.eclipse.swt.widgets.Composite) {
+                setCursorOnTree((org.eclipse.swt.widgets.Composite) child, cursor);
+            }
+        }
+    }
+
     public void fireAuthEnable(final boolean enabled) {
         // The auth icon is now per-tab; no global toolbar action to update.
     }
@@ -239,7 +316,7 @@ public class HdViewPart extends ViewPart {
                     } else {
                         img = CoreImages.PROXY;
                     }
-                    aa.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, img)));
+                    aa.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, img));
                 }
             }
         }
