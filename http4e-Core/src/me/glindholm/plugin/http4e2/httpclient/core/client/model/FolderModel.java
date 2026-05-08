@@ -68,7 +68,7 @@ public class FolderModel implements Model, Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    public List<ItemModel> deserialize(final byte[] data) {
+	public List<ItemModel> deserialize(final byte[] data) {
         final List<ItemModel> imList = new ArrayList<>();
         removeAll();
         List<ItemModel> serList;
@@ -123,7 +123,8 @@ public class FolderModel implements Model, Serializable {
             final List<Serializable> serList = new ArrayList<>();
 
             final CoreContext ctx = CoreContext.getContext();
-            final Map<String, String> mapParmzArgs = (Map<String, String>) ctx.getObject(CoreObjects.PARAMETERIZE_ARGS);
+            @SuppressWarnings("unchecked")
+			final Map<String, String> mapParmzArgs = (Map<String, String>) ctx.getObject(CoreObjects.PARAMETERIZE_ARGS);
 
             for (final ItemModel im : itemList) {
                 im.setParameteredArgs(mapParmzArgs);

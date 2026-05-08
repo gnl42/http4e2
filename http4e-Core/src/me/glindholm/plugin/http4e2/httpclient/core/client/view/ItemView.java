@@ -71,10 +71,10 @@ import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
  *
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
-@SuppressWarnings({ "unchecked", "serial" })
 class ItemView implements ModelListener, Serializable {
+	private static final long serialVersionUID = 1L;
 
-    private static final RGB GRAY_RGB_TEXT = new RGB(180, 180, 180);
+	private static final RGB GRAY_RGB_TEXT = new RGB(180, 180, 180);
 
     private final ItemModel model;
     final CTabItem tabItem;
@@ -161,7 +161,8 @@ class ItemView implements ModelListener, Serializable {
                 return;
             }
             if (!isPost()) {
-                final String textParams = ParseUtils.doUrlToParam2(urlCombo.getText(), ParseUtils.linesToMap2(paramView.getViewText()), true);
+                @SuppressWarnings("unchecked")
+				final String textParams = ParseUtils.doUrlToParam2(urlCombo.getText(), ParseUtils.linesToMap2(paramView.getViewText()), true);
                 paramView.setText(textParams);
             }
 
@@ -235,7 +236,8 @@ class ItemView implements ModelListener, Serializable {
 
         } else if (e.getType() == ModelEvent.URL_FOCUS_LOST) {
             if (!isPost()) {
-                final String textParams = ParseUtils.doUrlToParam2(urlCombo.getText(), ParseUtils.linesToMap2(paramView.getViewText()), true);
+                @SuppressWarnings("unchecked")
+				final String textParams = ParseUtils.doUrlToParam2(urlCombo.getText(), ParseUtils.linesToMap2(paramView.getViewText()), true);
                 paramView.setText(textParams);
             }
 

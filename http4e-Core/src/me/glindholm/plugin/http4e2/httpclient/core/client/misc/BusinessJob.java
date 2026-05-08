@@ -44,7 +44,6 @@ import me.glindholm.plugin.http4e2.httpclient.core.util.ParseUtils;
 /**
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
-@SuppressWarnings({ "unchecked" })
 public class BusinessJob {
 
     private ItemModel model;
@@ -57,7 +56,8 @@ public class BusinessJob {
         buzDisposed = false;
         this.model = model;
 
-        final Map<String, String> parameterizedArgs = (Map<String, String>) CoreContext.getContext().getObject(CoreObjects.PARAMETERIZE_ARGS);
+        @SuppressWarnings("unchecked")
+		final Map<String, String> parameterizedArgs = (Map<String, String>) CoreContext.getContext().getObject(CoreObjects.PARAMETERIZE_ARGS);
 
         try {
             nativeRequest = new NativeHttpRequest();

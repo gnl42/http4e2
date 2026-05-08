@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Shell;
 /**
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
-@SuppressWarnings("unchecked")
 public class CoreContext {
 
     public final static String PRODUCT_USER_DIR = System.getProperty("user.home") + File.separator + ".http4e";

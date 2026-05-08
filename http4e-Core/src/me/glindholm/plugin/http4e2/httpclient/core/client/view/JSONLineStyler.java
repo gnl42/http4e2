@@ -1,7 +1,8 @@
 package me.glindholm.plugin.http4e2.httpclient.core.client.view;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Vector;
+import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.LineStyleEvent;
@@ -13,7 +14,6 @@ import org.eclipse.swt.widgets.Control;
 import me.glindholm.plugin.http4e2.httpclient.core.misc.Styles;
 import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
 
-@SuppressWarnings("unchecked")
 public class JSONLineStyler implements LineStyleListener {
 
     JSONcanner scanner = new JSONcanner();
@@ -21,8 +21,6 @@ public class JSONLineStyler implements LineStyleListener {
     int[] tokenColors;
 
     Color[] colors;
-
-    Vector blockComments = new Vector();
 
     public static final int EOF = -1;
 
@@ -115,7 +113,7 @@ public class JSONLineStyler implements LineStyleListener {
      */
     @Override
     public void lineGetStyle(final LineStyleEvent event) {
-        final Vector styles = new Vector();
+        final List<StyleRange> styles = new ArrayList<>();
         int token;
         StyleRange lastStyle;
         // If the line is part of a block comment, create one style for the
@@ -148,21 +146,21 @@ public class JSONLineStyler implements LineStyleListener {
                         style.fontStyle = SWT.BOLD;
                     }
                     if (styles.isEmpty()) {
-                        styles.addElement(style);
+                        styles.add(style);
                     } else {
                         // Merge similar styles. Doing so will improve
                         // performance.
-                        lastStyle = (StyleRange) styles.lastElement();
+                        lastStyle = styles.get(styles.size() - 1);
                         if (lastStyle.similarTo(style) && lastStyle.start + lastStyle.length == style.start) {
                             lastStyle.length += style.length;
                         } else {
-                            styles.addElement(style);
+                            styles.add(style);
                         }
                     }
                 }
-            } else if (!styles.isEmpty() && (lastStyle = (StyleRange) styles.lastElement()).fontStyle == SWT.BOLD) {
+            } else if (!styles.isEmpty() && (lastStyle = styles.get(styles.size() - 1)).fontStyle == SWT.BOLD) {
                 final int start = scanner.getStartOffset() + event.lineOffset;
-                lastStyle = (StyleRange) styles.lastElement();
+                lastStyle = styles.get(styles.size() - 1);
                 // A font style of SWT.BOLD implies that the last style
                 // represents a java keyword.
                 if (lastStyle.start + lastStyle.length == start) {
@@ -175,7 +173,7 @@ public class JSONLineStyler implements LineStyleListener {
             token = scanner.nextToken();
         }
         event.styles = new StyleRange[styles.size()];
-        styles.copyInto(event.styles);
+        styles.toArray(event.styles);
     }
 
     /**

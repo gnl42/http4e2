@@ -3,7 +3,7 @@ package me.glindholm.plugin.http4e2.httpclient.core.util.shared;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import me.glindholm.plugin.http4e2.httpclient.core.util.BaseUtils;
 
@@ -85,32 +85,31 @@ public class Exported {
         return buff.toString();
     }
 
-    @SuppressWarnings("unchecked")
-    public static void main(final String[] args) {
-
-        java.io.InputStream in;
-        try {
-            in = new java.io.FileInputStream("C:/.tools/eclipse/workspace2/http4e-Core/resources/http-runner-src.txt");
-            final byte[] data = new byte[in.available()];
-            in.read(data);
-            final StringBuilder sb = new StringBuilder(new String(data));
-
-            System.out.println(sb);
-            final String mainclass = "mainclass";
-            System.out.println(sb.indexOf("mainclass"));
-            sb.replace(802, 802 + mainclass.length(), "");
-            System.out.println(sb);
-//         Map hh = new HashMap();
-//         List hhList = new ArrayList();
-//         hhList.add("1a");
-//         hhList.add("1b");
-//         hhList.add("1c");
-//         hh.put("h1", hhList);
-//         Exported exported = new Exported(in, "GET", "http://asd.com?qe=6", "myBody", hh, null);
-//         System.out.println(exported.getSource());
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void main(final String[] args) {
+//
+//        java.io.InputStream in;
+//        try {
+//            in = new FileInputStream("C:/.tools/eclipse/workspace2/http4e-Core/resources/http-runner-src.txt");
+//            final byte[] data = new byte[in.available()];
+//            in.read(data);
+//            final StringBuilder sb = new StringBuilder(new String(data));
+//
+//            System.out.println(sb);
+//            final String mainclass = "mainclass";
+//            System.out.println(sb.indexOf("mainclass"));
+//            sb.replace(802, 802 + mainclass.length(), "");
+//            System.out.println(sb);
+////         Map hh = new HashMap();
+////         List hhList = new ArrayList();
+////         hhList.add("1a");
+////         hhList.add("1b");
+////         hhList.add("1c");
+////         hh.put("h1", hhList);
+////         Exported exported = new Exported(in, "GET", "http://asd.com?qe=6", "myBody", hh, null);
+////         System.out.println(exported.getSource());
+//        } catch (final Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 }
