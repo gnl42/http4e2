@@ -370,11 +370,13 @@ class ItemView implements ModelListener, Serializable {
         } else if (e.getType() == ModelEvent.PROXY) {
             final CoreContext ctx = CoreContext.getContext();
             final ProxyItem pr = (ProxyItem) ctx.getObject(CoreObjects.PROXY_ITEM);
-            if (pr != null && pr.isProxy()) {
-                lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_ENABLED));
-            } else {
-                lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_TAB));
-            }
+			if (lblProxy != null) {
+				if (pr != null && pr.isProxy()) {
+					lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_ENABLED));
+				} else {
+					lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_TAB));
+				}
+	        }
         } else {
 //         System.err.println("Unknown event: " + e);
         }
@@ -437,9 +439,9 @@ class ItemView implements ModelListener, Serializable {
             }
         });
 
-        lblProxy = new Label(parent, SWT.NONE);
-        lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_TAB));
-        lblProxy.setToolTipText("Using Proxy Connection");
+//        lblProxy = new Label(parent, SWT.NONE);
+//        lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_TAB));
+//        lblProxy.setToolTipText("Using Proxy Connection");
     }
 
     private Control buildBottomControl(final Composite parent) {

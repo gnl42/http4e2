@@ -168,6 +168,11 @@ public class HdViewPart {
             part.setToolbar(mToolBar);
         }
 
+        // Clear any items that may have been persisted in the workbench model
+        // from a previous session; we always rebuild from scratch so that handler
+        // object references belong to the current instance.
+        mToolBar.getChildren().clear();
+
         final HdViewPart self = this;
 
         // New tab
