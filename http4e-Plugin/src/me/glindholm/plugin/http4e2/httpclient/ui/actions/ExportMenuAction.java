@@ -20,8 +20,6 @@ public class ExportMenuAction extends Action implements IMenuCreator {
     private final Shell shell;
     private final HdViewPart view;
     private Menu menu;
-    private Action javaHttp3Action;
-    private Action javaHttp4Action;
     private Action javaHttp5Action;
     private Action javaHttp21Action;
     private Action jmeterAction;
