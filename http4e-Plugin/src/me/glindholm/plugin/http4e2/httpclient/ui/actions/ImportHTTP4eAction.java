@@ -8,7 +8,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
@@ -22,10 +22,12 @@ import me.glindholm.plugin.http4e2.httpclient.ui.preferences.PreferenceConstants
 
 public class ImportHTTP4eAction extends Action {
 
-    private final ViewPart view;
+    private final Shell shell;
+    private final HdViewPart view;
     private Menu fMenu;
 
-    public ImportHTTP4eAction(final ViewPart view) {
+    public ImportHTTP4eAction(final Shell shell, final HdViewPart view) {
+        this.shell = shell;
         this.view = view;
         fMenu = null;
         setToolTipText("Import HTTP4e2 script");
@@ -51,7 +53,7 @@ public class ImportHTTP4eAction extends Action {
 
         try {
 
-            final FileDialog fileDialog = new FileDialog(view.getSite().getShell(), SWT.OPEN);
+            final FileDialog fileDialog = new FileDialog(shell, SWT.OPEN);
 
             fileDialog.setFileName("sessions.http4e");
             fileDialog.setFilterNames(new String[] { "HTTP4e2 File *.http4e" });
@@ -61,11 +63,9 @@ public class ImportHTTP4eAction extends Action {
 
             final String path = fileDialog.open();
             if (path != null) {
-                final HdViewPart hdView = (HdViewPart) view;
-                final List<ItemModel> iteModels = BaseUtils.importHttp4eSessions(path, hdView.getFolderView().getModel());
-                final HdViewPart hdViewPart = (HdViewPart) view;
+                final List<ItemModel> iteModels = BaseUtils.importHttp4eSessions(path, view.getFolderView().getModel());
                 for (final ItemModel im : iteModels) {
-                    hdViewPart.getFolderView().buildTab(im);
+                    view.getFolderView().buildTab(im);
                 }
 
                 updateUserHomeDir(path);

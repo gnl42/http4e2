@@ -34,7 +34,7 @@ public class ProxyAction extends Action {
     @Override
     public void run() {
         try {
-            final ProxyDialog dialog = new ProxyDialog(view);
+            final ProxyDialog dialog = new ProxyDialog(view.getShell(), view);
             dialog.open();
         } catch (final Exception e) {
             ExceptionHandler.handle(e);

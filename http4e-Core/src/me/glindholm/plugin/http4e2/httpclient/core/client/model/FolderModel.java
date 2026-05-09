@@ -71,6 +71,17 @@ public class FolderModel implements Model, Serializable {
 	public List<ItemModel> deserialize(final byte[] data) {
         final List<ItemModel> imList = new ArrayList<>();
         removeAll();
+        if (data == null || data.length == 0) {
+            // No saved state (e.g. first run) — fall through to the default-tab creation below
+            final ItemModel im = new ItemModel(this);
+            im.setAvailableProxies(availableProxies);
+            im.setAvailableKeystore(availableKeystore);
+            imList.add(im);
+            final CoreContext ctx = CoreContext.getContext();
+            ctx.putObject(CoreObjects.PROXY_ITEM, im.getProxy());
+            ctx.putObject(CoreObjects.PARAMETERIZE_ARGS, im.getParameteredArgs());
+            return imList;
+        }
         List<ItemModel> serList;
         try {
             final ByteArrayInputStream bais = new ByteArrayInputStream(data);

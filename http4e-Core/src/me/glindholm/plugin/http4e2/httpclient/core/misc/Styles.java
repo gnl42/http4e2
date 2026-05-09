@@ -16,6 +16,7 @@
 package me.glindholm.plugin.http4e2.httpclient.core.misc;
 
 import org.eclipse.jface.resource.FontRegistry;
+import org.eclipse.jface.resource.JFaceResources;
 /**
  * This class contains all custom http4e styles (think of it as css)
  *
@@ -25,8 +26,6 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.themes.ITheme;
 
 public class Styles {
 
@@ -55,8 +54,7 @@ public class Styles {
     private static Styles styles = null;
 
     private Styles(final Shell shell) {
-        final ITheme theme = PlatformUI.getWorkbench().getThemeManager().getCurrentTheme();
-        final FontRegistry fontRegistry = theme.getFontRegistry();
+        final FontRegistry fontRegistry = JFaceResources.getFontRegistry();
         final Font font = fontRegistry.get("org.eclipse.debug.ui.consoleFont");
         final FontData fd = font.getFontData()[0];
         fontStyle = new FontStyle(fd.getName(), fd.getHeight(), fd.getStyle());

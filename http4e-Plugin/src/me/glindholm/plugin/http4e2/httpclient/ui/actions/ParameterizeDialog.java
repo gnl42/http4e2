@@ -26,7 +26,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
@@ -46,8 +46,8 @@ public class ParameterizeDialog extends TitleAreaDialog {
     private static int WEIGHT = 300;
     private MouseListener okListener;
 
-    public ParameterizeDialog(final ViewPart view) {
-        super(view.getViewSite().getShell());
+    public ParameterizeDialog(final Shell shell) {
+        super(shell);
         setTitleImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.LOGO_DIALOG));
     }
 

@@ -5,27 +5,26 @@ import java.util.function.Consumer;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobChangeAdapter;
-import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.action.ControlContribution;
-import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.e4.core.di.annotations.Optional;
+import org.eclipse.e4.ui.model.application.ui.basic.MPart;
+import org.eclipse.jface.action.ToolBarManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ShellEvent;import org.eclipse.swt.events.ShellListener;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.ui.IActionBars;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.part.ViewPart;
-import org.eclipse.ui.progress.IWorkbenchSiteProgressService;
+import org.eclipse.swt.widgets.Shell;
 
-import me.glindholm.plugin.http4e2.httpclient.core.client.misc.BusinessJob;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.inject.Inject;
+
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreObjects;
 import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
+import me.glindholm.plugin.http4e2.httpclient.core.client.misc.BusinessJob;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ProxyItem;
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.FolderView;
@@ -40,286 +39,189 @@ import me.glindholm.plugin.http4e2.httpclient.ui.actions.ParameterizeAction;
 import me.glindholm.plugin.http4e2.httpclient.ui.actions.ProxyAction;
 
 /**
- * @author Atanas Roussev (https://nextinterfaces.com)
+ * Pure E4 view part — no E3 compatibility layer.
+ * <p>
+ * Registered via {@code <e4view>} in {@code plugin.xml}. Eclipse lists it in
+ * the "Show View" dialog and opens it through {@link EPartService} automatically.
+ * <p>
+ * The {@link #init(Composite)} method is intentionally <em>not</em> named
+ * {@code createPartControl} to prevent the E3 compatibility bridge from trying
+ * to invoke it as an {@link org.eclipse.ui.IViewPart} lifecycle method.
  */
-public class HdViewPart extends ViewPart {
+public class HdViewPart {
+
+    public static final String ID = "me.glindholm.plugin.http4e2.ui.HdViewPart";
+
+    @Inject
+    @Optional
+    private MPart part;
 
     private HdContentViewer viewer;
-    private IWorkbenchSiteProgressService progressService;
-
-    public HdViewPart() {
-    }
+    private Shell shell;
+    private ToolBarManager tbm;
+    private ProxyAction proxyAction;
 
     public FolderView getFolderView() {
         return viewer.getFolderView();
     }
 
-    @Override
+    @PostConstruct
+    public void init(final Composite parent) {
+        buildUI(parent);
+    }
+
     public void createPartControl(final Composite parent) {
-
-        final IActionBars actionBars = getViewSite().getActionBars();
-        final IToolBarManager toolbar = actionBars.getToolBarManager();
-
-        final ControlContribution space = new ControlContribution("Space") {
-
-            @Override
-            public Control createControl(final Composite parent) {
-                final Label space = new Label(parent, SWT.NONE);
-                space.setSize(10, 0);
-                return space;
-            }
-
-            @Override
-            protected int computeWidth(final Control control) {
-                return 10;
-            }
-        };
-
-        // ---- TODO add a maginfier control
-        // tbmanager.add(new ControlContribution("magn"){
-        // public Control createControl( Composite parent){
-        // final Label space = new Label(parent, SWT.NONE);
-        // space.setSize(20, 0);
-        // space.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI,
-        // CoreImages.MAGN));
-        // return space;
-        // }
-        // protected int computeWidth( Control control){
-        // return 20;
-        // }
-        // });
-        //
-
-        // ---- TODO add a Search|Find search control
-        // tbmanager.add(new ControlContribution("Find") {
-        // public Control createControl( Composite parent){
-        // final Text find = new Text(parent, SWT.NONE);
-        // find.setSize(100, 0);
-        // find.setToolTipText("Find");
-        // find.setForeground(ResourceUtils.getColor(Styles.PROC_INSTR));
-        // find.setBackground(ResourceUtils.getColor(Styles.BACKGROUND_DISABLED));
-        // return find;
-        // }
-        // protected int computeWidth( Control control){
-        // return 100;
-        // }
-        // });
-
-        toolbar.add(space);
-
-        final AddTabAction tabAction = new AddTabAction(this);
-        tabAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.TAB_OPEN));
-        toolbar.add(tabAction);
-
-        final DuplicateTabAction tabDuplicate = new DuplicateTabAction(this);
-        tabDuplicate.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.TAB_DUPLICATE));
-        toolbar.add(tabDuplicate);
-
-        final ParameterizeAction parameterizeAction = new ParameterizeAction(this);
-        parameterizeAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.PARAMETERIZE));
-        toolbar.add(parameterizeAction);
-
-        // TabCloseAction tabCloseAction = new TabCloseAction(this);
-        // tabCloseAction.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI,
-        // CoreImages.TAB_DEL)));
-        // toolbar.add(tabCloseAction);
-
-        final ImportMenuAction importAction = new ImportMenuAction(this);
-        importAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.IMPORT));
-        toolbar.add(importAction);
-
-        // ExportJavaHttp3Action exportAction = new ExportJavaHttp3Action(this);
-        // exportAction.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI,
-        // CoreImages.EXPORT)));
-        // toolbar.add(exportAction);
-
-        // ToolsAction toolsAction = new ToolsAction(this);
-        // toolsAction.setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI,
-        // CoreImages.TOOLS)));
-        // toolbar.add(toolsAction);
-
-        final ExportMenuAction exportMenuAction = new ExportMenuAction(this);
-        exportMenuAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.EXPORT));
-        toolbar.add(exportMenuAction);
-
-        final ProxyAction proxyAction = new ProxyAction(this);
-        proxyAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.PROXY));
-        toolbar.add(proxyAction);
-
-        final HelpDropDownAction helpAction = new HelpDropDownAction(this);
-        helpAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.HELP));
-        helpAction.setEnabled(true);
-        toolbar.add(helpAction);
-
-        viewer = new HdContentViewer(parent);
-
-        // Propagate busy cursor to every child widget in this view so it shows
-        // consistently, not just on labels where the shell cursor bleeds through.
-        final org.eclipse.swt.graphics.Cursor waitCursor =
-                parent.getDisplay().getSystemCursor(org.eclipse.swt.SWT.CURSOR_WAIT);
-        final org.eclipse.swt.graphics.Cursor normalCursor = null; // null = restore inherited cursor
-        Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
-            @Override
-            public void running(final IJobChangeEvent event) {
-                if (event.getJob().belongsTo(BusinessJob.FAMILY)) {
-                    parent.getDisplay().asyncExec(() -> setCursorOnTree(parent, waitCursor));
-                }
-            }
-            @Override
-            public void done(final IJobChangeEvent event) {
-                if (event.getJob().belongsTo(BusinessJob.FAMILY)) {
-                    parent.getDisplay().asyncExec(() -> setCursorOnTree(parent, normalCursor));
-                }
-            }
-        });
-
-        final CoreContext ctx = CoreContext.getContext();
-
-        // Register the Eclipse progress service so Core can schedule jobs with busy indicator
-        // (progressService field is set in init() and showBusyForFamily is already registered)
-        ctx.putObject(CoreObjects.PROGRESS_SERVICE, progressService);
-        // Register per-tab auth dialog opener: Consumer<ItemModel> called with the clicked tab's model
-        final Consumer<ItemModel> authOpener = itemModel -> {
-            try {
-                final AuthDialog dialog = new AuthDialog(HdViewPart.this, itemModel);
-                dialog.open();
-            } catch (final Exception ex) {
-                ExceptionHandler.handle(ex);
-            }
-        };
-        ctx.putObject(CoreObjects.AUTH_DIALOG_OPENER, authOpener);
-
-        final ProxyItem proxyItem = (ProxyItem) ctx.getObject(CoreObjects.PROXY_ITEM);
-        fireProxyEnable(proxyItem != null && proxyItem.isProxy());
-
-        // folderView=new FolderView(frame, new FolderModel());
-        parent.addDisposeListener(e -> viewer.doDispose());
-
-        // ToolBarManager tbar = new ToolBarManager(typeViewerToolBar);
-        // fTypeViewerViewForm.setTopLeft(typeViewerToolBar);
-        // set the filter menu items
-        // IActionBars actionBars= getViewSite().getActionBars();
-        // IMenuManager viewMenu= actionBars.getMenuManager();
-        // for (int i= 0; i < fViewActions.length; i++) {
-        // ToggleViewAction action= fViewActions[i];
-        // viewMenu.add(action);
-        // action.setEnabled(false);
-        // }
-        // viewMenu.add(new Separator());
-
-        getSite().getShell().addShellListener(new ShellListener() {
-
-            @Override
-            public void shellActivated(final ShellEvent e) {
-                // folderView.setFocus(true);
-            }
-
-            @Override
-            public void shellDeactivated(final ShellEvent e) {
-                // folderView.setFocus(false);
-            }
-
-            @Override
-            public void shellClosed(final ShellEvent e) {
-            }
-
-            @Override
-            public void shellDeiconified(final ShellEvent e) {
-            }
-
-            @Override
-            public void shellIconified(final ShellEvent e) {
-            }
-        });
+        buildUI(parent);
     }
 
-    /**
-     * Called when we must grab focus.
-     *
-     * @see org.eclipse.ui.part.ViewPart#setFocus
-     */
-    @Override
-    public void setFocus() {
-        // folderView.focus();
-        viewer.getControl().setFocus();
-    }
-
-    /**
-     * Called when the View is to be disposed
-     */
-    @Override
-    public void dispose() {
-        super.dispose();
-    }
-
-    @Override
-    public void init(final IViewSite site) throws PartInitException {
-        super.init(site);
-        progressService = site.getAdapter(IWorkbenchSiteProgressService.class);
-        if (progressService != null) {
-            progressService.showBusyForFamily(BusinessJob.FAMILY);
+    private void buildUI(final Composite parent) {
+        if (viewer != null) {
+            return; // already built (both paths fired)
         }
+        try {
+            shell = parent.getShell();
 
-        // Drive the view tab title to reflect request activity.
-        // We avoid mutating MPart.getTags() directly because in this Eclipse version
-        // UIEventPublisher incorrectly uses a wildcard topic for publishing, causing
-        // an IllegalArgumentException from the OSGi EventBroker.
-        final String originalName = site.getRegisteredName();
-        Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
-            @Override
-            public void running(final IJobChangeEvent event) {
-                if (event.getJob().belongsTo(BusinessJob.FAMILY)) {
-                    site.getShell().getDisplay().asyncExec(
-                            () -> setPartName("⟳ " + originalName));
+            parent.setLayout(new GridLayout(1, false));
+
+            tbm = new ToolBarManager(SWT.FLAT | SWT.RIGHT);
+
+            final AddTabAction tabAction = new AddTabAction(this);
+            tabAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.TAB_OPEN));
+            tbm.add(tabAction);
+
+            final DuplicateTabAction tabDuplicate = new DuplicateTabAction(this);
+            tabDuplicate.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.TAB_DUPLICATE));
+            tbm.add(tabDuplicate);
+
+            final ParameterizeAction parameterizeAction = new ParameterizeAction(this);
+            parameterizeAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.PARAMETERIZE));
+            tbm.add(parameterizeAction);
+
+            final ImportMenuAction importAction = new ImportMenuAction(shell, this);
+            importAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.IMPORT));
+            tbm.add(importAction);
+
+            final ExportMenuAction exportMenuAction = new ExportMenuAction(shell, this);
+            exportMenuAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.EXPORT));
+            tbm.add(exportMenuAction);
+
+            proxyAction = new ProxyAction(this);
+            proxyAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.PROXY));
+            tbm.add(proxyAction);
+
+            final HelpDropDownAction helpAction = new HelpDropDownAction(shell);
+            helpAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, CoreImages.HELP));
+            helpAction.setEnabled(true);
+            tbm.add(helpAction);
+
+            final Control toolBar = tbm.createControl(parent);
+            toolBar.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+
+            viewer = new HdContentViewer(parent);
+            viewer.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+            final org.eclipse.swt.graphics.Cursor waitCursor =
+                    parent.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
+            Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
+                @Override
+                public void running(final IJobChangeEvent event) {
+                    if (event.getJob().belongsTo(BusinessJob.FAMILY)) {
+                        parent.getDisplay().asyncExec(() -> setCursorOnTree(parent, waitCursor));
+                    }
                 }
+                @Override
+                public void done(final IJobChangeEvent event) {
+                    if (event.getJob().belongsTo(BusinessJob.FAMILY)) {
+                        parent.getDisplay().asyncExec(() -> setCursorOnTree(parent, null));
+                    }
+                }
+            });
+
+            if (part != null) {
+                final String originalLabel = part.getLabel();
+                Job.getJobManager().addJobChangeListener(new JobChangeAdapter() {
+                    @Override
+                    public void running(final IJobChangeEvent event) {
+                        if (event.getJob().belongsTo(BusinessJob.FAMILY)) {
+                            parent.getDisplay().asyncExec(() -> part.setLabel("⟳ " + originalLabel));
+                        }
+                    }
+                    @Override
+                    public void done(final IJobChangeEvent event) {
+                        if (event.getJob().belongsTo(BusinessJob.FAMILY)) {
+                            parent.getDisplay().asyncExec(() -> part.setLabel(originalLabel));
+                        }
+                    }
+                });
             }
 
-            @Override
-            public void done(final IJobChangeEvent event) {
-                if (event.getJob().belongsTo(BusinessJob.FAMILY)) {
-                    site.getShell().getDisplay().asyncExec(
-                            () -> setPartName(originalName));
+            final CoreContext ctx = CoreContext.getContext();
+
+            final Consumer<ItemModel> authOpener = itemModel -> {
+                try {
+                    new AuthDialog(shell, itemModel).open();
+                } catch (final Exception ex) {
+                    ExceptionHandler.handle(ex);
                 }
-            }
-        });
+            };
+            ctx.putObject(CoreObjects.AUTH_DIALOG_OPENER, authOpener);
+
+            final ProxyItem proxyItem = (ProxyItem) ctx.getObject(CoreObjects.PROXY_ITEM);
+            fireProxyEnable(proxyItem != null && proxyItem.isProxy());
+
+            parent.addDisposeListener(e -> viewer.doDispose());
+
+        } catch (final Exception e) {
+            e.printStackTrace();
+            parent.setLayout(new org.eclipse.swt.layout.FillLayout());
+            final org.eclipse.swt.widgets.Label lbl = new org.eclipse.swt.widgets.Label(parent, SWT.WRAP);
+            lbl.setText("HTTP4e2 failed to load: " + e.getClass().getSimpleName() + ": " + e.getMessage()
+                    + (e.getCause() != null ? "\nCaused by: " + e.getCause() : ""));
+            parent.layout(true);
+        }
     }
 
-    /** Recursively sets the cursor on a composite and all its children. */
-    private static void setCursorOnTree(final org.eclipse.swt.widgets.Composite root,
-            final org.eclipse.swt.graphics.Cursor cursor) {
+    public void setFocus() {
+        if (viewer != null && viewer.getControl() != null && !viewer.getControl().isDisposed()) {
+            viewer.getControl().setFocus();
+        }
+    }
+
+    @PreDestroy
+    public void dispose() {
+        if (tbm != null) {
+            tbm.dispose();
+            tbm = null;
+        }
+    }
+
+    private static void setCursorOnTree(final Composite root, final org.eclipse.swt.graphics.Cursor cursor) {
         if (root == null || root.isDisposed()) {
             return;
         }
         root.setCursor(cursor);
         for (final Control child : root.getChildren()) {
             child.setCursor(cursor);
-            if (child instanceof org.eclipse.swt.widgets.Composite) {
-                setCursorOnTree((org.eclipse.swt.widgets.Composite) child, cursor);
+            if (child instanceof Composite) {
+                setCursorOnTree((Composite) child, cursor);
             }
         }
     }
 
     public void fireAuthEnable(final boolean enabled) {
-        // The auth icon is now per-tab; no global toolbar action to update.
+        // per-tab; no global toolbar action
     }
 
     public void fireProxyEnable(final boolean enabled) {
-        final IToolBarManager toolbar = getViewSite().getActionBars().getToolBarManager();
-        final IContributionItem[] items = toolbar.getItems();
-        for (final IContributionItem it : items) {
-            if (it instanceof final ActionContributionItem aci) {
-                if (aci.getAction() instanceof ProxyAction) {
-                    final ProxyAction aa = (ProxyAction) aci.getAction();
-                    String img = null;
-                    if (enabled) {
-                        img = CoreImages.PROXY_ENABLED;
-                    } else {
-                        img = CoreImages.PROXY;
-                    }
-                    aa.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI, img));
-                }
-            }
+        if (proxyAction == null || tbm == null) {
+            return;
         }
+        proxyAction.setImageDescriptor(ResourceUtils.getImageDescriptor(CoreConstants.PLUGIN_UI,
+                enabled ? CoreImages.PROXY_ENABLED : CoreImages.PROXY));
+        tbm.update(true);
     }
 
+    public Shell getShell() {
+        return shell;
+    }
 }

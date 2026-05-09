@@ -38,7 +38,7 @@ public class AuthenticationAction extends Action {
         try {
             final FolderView folderView = view.getFolderView();
             final ItemModel itemModel = folderView.getModel().getItemModel(folderView.getSelectionItemHash());
-            final AuthDialog dialog = new AuthDialog(view, itemModel);
+            final AuthDialog dialog = new AuthDialog(view.getShell(), itemModel);
             dialog.open();
         } catch (final Exception e) {
             ExceptionHandler.handle(e);

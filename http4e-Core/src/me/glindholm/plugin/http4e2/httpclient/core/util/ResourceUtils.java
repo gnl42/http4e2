@@ -32,7 +32,6 @@ import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
-import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreObjects;
@@ -60,27 +59,21 @@ public class ResourceUtils {
 
     public static ImageDescriptor getImageDescriptor(final String pluginID, final String image) {
         if (Utils.isIDE()) {
-            return AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, image);
+            final URL url = FileLocator.find(Platform.getBundle(pluginID), new Path(image), null);
+            if (url != null) {
+                return ImageDescriptor.createFromURL(url);
+            }
+            return ImageDescriptor.getMissingImageDescriptor();
         } else {
             return ImageDescriptor.createFromFile(null, image);
         }
     }
 
     public static Image getImage(final String pluginID, final String image) {
-        /*--- create from class file location
-        ImageDescriptor iDescr = ImageDescriptor.createFromFile(CoreResources.class, name);
-        Image image = resourceCache.getImage(iDescr);
-        return image;
-        --- get workbench shared image
-        IWorkbench workbench = PlatformUI.getWorkbench();
-        ISharedImages images = workbench.getSharedImages();
-        image = images.getImage(ISharedImages.IMG_OBJ_FOLDER);
-        --- image from plugin
-        MyPlugin.getImageDescriptor("icons/a_image.png").createImage();
-        AbstractUIPlugin.imageDescriptorFromPlugin(myPluginID, image)).createImage();
-         */
         if (Utils.isIDE()) {
-            return resourceCache.getImage(AbstractUIPlugin.imageDescriptorFromPlugin(pluginID, image));
+            final URL url = FileLocator.find(Platform.getBundle(pluginID), new Path(image), null);
+            final ImageDescriptor descriptor = url != null ? ImageDescriptor.createFromURL(url) : ImageDescriptor.getMissingImageDescriptor();
+            return resourceCache.getImage(descriptor);
         } else {
             return resourceCache.getImage(image);
         }

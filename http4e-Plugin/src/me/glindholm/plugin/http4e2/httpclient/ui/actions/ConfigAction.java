@@ -16,14 +16,14 @@
 package me.glindholm.plugin.http4e2.httpclient.ui.actions;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
 
 public class ConfigAction extends Action {
 
-    private final ViewPart view;
+    private final Shell shell;
 
-    public ConfigAction(final ViewPart view, final String title) {
-        this.view = view;
+    public ConfigAction(final Shell shell, final String title) {
+        this.shell = shell;
 
         setText(title);
         setDescription(title);
@@ -32,7 +32,7 @@ public class ConfigAction extends Action {
 
     @Override
     public void run() {
-        final ConfigDialog dialog = new ConfigDialog(view);
+        final ConfigDialog dialog = new ConfigDialog(shell);
         dialog.open();
     }
 

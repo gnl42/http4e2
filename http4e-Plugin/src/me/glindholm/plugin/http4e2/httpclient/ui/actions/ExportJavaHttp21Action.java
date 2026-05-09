@@ -5,7 +5,8 @@ import java.io.StringWriter;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
+
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
@@ -19,10 +20,12 @@ import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
 
 public class ExportJavaHttp21Action extends Action {
 
-    private final ViewPart view;
+    private final Shell shell;
+    private final HdViewPart view;
     private Menu fMenu;
 
-    public ExportJavaHttp21Action(final ViewPart view) {
+    public ExportJavaHttp21Action(final Shell shell, final HdViewPart view) {
+        this.shell = shell;
         this.view = view;
         fMenu = null;
         setToolTipText("Export call as Java 21 java.net.http.HttpClient script");
@@ -40,14 +43,14 @@ public class ExportJavaHttp21Action extends Action {
     @Override
     public void run() {
         try {
-            final FolderView folderView = ((HdViewPart) view).getFolderView();
+            final FolderView folderView = view.getFolderView();
             final ItemModel iModel = folderView.getModel().getItemModel(folderView.getSelectionItemHash());
             iModel.fireExecute(new ModelEvent(ModelEvent.EXPORT, iModel));
 
             final StringWriter writer = new StringWriter();
             BaseUtils.writeJavaHttp21(iModel, writer);
 
-            final ExportDialog dialog = new ExportDialog(view, "Java 21 HttpClient call", "Your call exported as Java 21 java.net.http.HttpClient call.",
+            final ExportDialog dialog = new ExportDialog(shell, view.getFolderView(), "Java 21 HttpClient call", "Your call exported as Java 21 java.net.http.HttpClient call.",
                     writer.toString());
             dialog.open();
         } catch (final Exception e) {

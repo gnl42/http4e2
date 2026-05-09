@@ -15,48 +15,31 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.ui.actions;
 
-import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.ui.IViewActionDelegate;
-import org.eclipse.ui.IViewPart;
-
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.FolderView;
 import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
 
 /**
- * Action delegate for all toolbar push-buttons.
+ * Legacy action delegate — no longer used as a 3.x IViewActionDelegate.
+ * Kept for backwards-compatibility reference; toolbar actions now go through
+ * the {@link AddTabAction} / {@link DuplicateTabAction} etc. directly.
  *
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
-public class HdActionDelegate implements IViewActionDelegate {
+public class HdActionDelegate {
 
     public HdViewPart hdPart = null;
 
-    @Override
-    public void init(final IViewPart viewPart) {
-        if (viewPart instanceof HdViewPart) {
-            hdPart = (HdViewPart) viewPart;
-        }
+    public void init(final HdViewPart viewPart) {
+        hdPart = viewPart;
     }
 
-    @Override
-    public void run(final IAction action) {
-        final String id = action.getId();
+    public void run(final String id) {
         final FolderView folderView = hdPart.getFolderView();
-
         if (id.equals("add.tab")) {
             folderView.addTab();
-
         } else if (id.equals("remove.tab")) {
             folderView.removeTab();
         }
-    }
-
-    /**
-     * Not implemented.
-     */
-    @Override
-    public void selectionChanged(final IAction action, final ISelection selection) {
     }
 
 }

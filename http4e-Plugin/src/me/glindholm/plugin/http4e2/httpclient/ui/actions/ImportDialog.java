@@ -26,7 +26,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
@@ -44,8 +44,8 @@ public class ImportDialog extends TitleAreaDialog {
     private static final RGB GRAY_NORMAL_TEXT = new RGB(15, 15, 15);
     private static final RGB GRAY_RGB_TEXT = new RGB(180, 180, 180);
 
-    public ImportDialog(final ViewPart view) {
-        super(view.getViewSite().getShell());
+    public ImportDialog(final Shell shell) {
+        super(shell);
         setTitleImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.LOGO_DIALOG));
     }
 

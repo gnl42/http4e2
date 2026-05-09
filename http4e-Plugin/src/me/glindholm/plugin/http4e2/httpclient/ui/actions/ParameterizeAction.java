@@ -58,7 +58,7 @@ public class ParameterizeAction extends Action {
     @Override
     public void run() {
         if (dialog == null) {
-            dialog = new ParameterizeDialog(view);
+            dialog = new ParameterizeDialog(view.getShell());
         }
         try {
             final MouseAdapter okListener = new MouseAdapter() {

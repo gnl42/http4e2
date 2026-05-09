@@ -6,7 +6,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
@@ -19,10 +19,12 @@ import me.glindholm.plugin.http4e2.httpclient.ui.preferences.PreferenceConstants
 
 public class ExportJMeterAction extends Action {
 
-    private final ViewPart view;
+    private final Shell shell;
+    private final HdViewPart view;
     private Menu fMenu;
 
-    public ExportJMeterAction(final ViewPart view) {
+    public ExportJMeterAction(final Shell shell, final HdViewPart view) {
+        this.shell = shell;
         this.view = view;
         fMenu = null;
         setToolTipText("Export tabs as JMeter script");
@@ -48,7 +50,7 @@ public class ExportJMeterAction extends Action {
 
         try {
 
-            final FileDialog fileDialog = new FileDialog(view.getSite().getShell(), SWT.SAVE);
+            final FileDialog fileDialog = new FileDialog(shell, SWT.SAVE);
 
             fileDialog.setFileName("http4e.jmx");
             fileDialog.setFilterNames(new String[] { "JMeter File *.jmx (Run the script with \"jmeter-t.cmd\")" });
@@ -58,8 +60,7 @@ public class ExportJMeterAction extends Action {
 
             final String path = fileDialog.open();
             if (path != null) {
-                final HdViewPart hdView = (HdViewPart) view;
-                BaseUtils.writeJMX(path, hdView.getFolderView().getModel());
+                BaseUtils.writeJMX(path, view.getFolderView().getModel());
                 updateUserHomeDir(path);
             }
 

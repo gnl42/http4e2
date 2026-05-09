@@ -22,7 +22,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * This class is a TODO feature adding a tools menu to toolbar.
@@ -33,11 +33,11 @@ public class ToolsAction extends Action implements IMenuCreator {
 
     public static final int RESULTS_IN_DROP_DOWN = 10;
 
-    private final ViewPart view;
+    private final Shell shell;
     private Menu fMenu;
 
-    public ToolsAction(final ViewPart view) {
-        this.view = view;
+    public ToolsAction(final Shell shell) {
+        this.shell = shell;
         fMenu = null;
         setToolTipText("Http tools: Encoding, Encrypting ..");
         setMenuCreator(this);
@@ -65,7 +65,7 @@ public class ToolsAction extends Action implements IMenuCreator {
         fMenu = new Menu(parent);
         addEntries(fMenu);
         new MenuItem(fMenu, SWT.SEPARATOR);
-        addActionToMenu(fMenu, new HelpAboutAction(view, "About"));
+        addActionToMenu(fMenu, new HelpAboutAction(shell, "About"));
 //      addActionToMenu(fMenu, new SampleAction());
         return fMenu;
     }
@@ -74,7 +74,7 @@ public class ToolsAction extends Action implements IMenuCreator {
 
         boolean checked = false;
         for (int i = 0; i < 5; i++) {
-            final HelpAboutAction action = new HelpAboutAction(view, "qwe " + i);
+            final HelpAboutAction action = new HelpAboutAction(shell, "qwe " + i);
             // action.setChecked(true);
             checked = checked || action.isChecked();
             addActionToMenu(menu, action);

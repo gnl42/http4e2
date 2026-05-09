@@ -28,8 +28,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.part.ViewPart;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
@@ -62,8 +62,8 @@ public class AuthDialog extends TitleAreaDialog {
 
     private final ItemModel itemModel;
 
-    public AuthDialog(final ViewPart view, final ItemModel itemModel) {
-        super(view.getViewSite().getShell());
+    public AuthDialog(final Shell shell, final ItemModel itemModel) {
+        super(shell);
         setTitleImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.LOGO_DIALOG));
         this.itemModel = itemModel;
     }

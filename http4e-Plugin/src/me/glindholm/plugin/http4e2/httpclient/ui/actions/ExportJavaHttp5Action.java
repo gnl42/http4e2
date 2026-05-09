@@ -5,7 +5,8 @@ import java.io.StringWriter;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
+
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
@@ -19,10 +20,12 @@ import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
 
 public class ExportJavaHttp5Action extends Action {
 
-    private final ViewPart view;
+    private final Shell shell;
+    private final HdViewPart view;
     private Menu fMenu;
 
-    public ExportJavaHttp5Action(final ViewPart view) {
+    public ExportJavaHttp5Action(final Shell shell, final HdViewPart view) {
+        this.shell = shell;
         this.view = view;
         fMenu = null;
         setToolTipText("Export call as Apache HttpComponents 5 script");
@@ -40,14 +43,14 @@ public class ExportJavaHttp5Action extends Action {
     @Override
     public void run() {
         try {
-            final FolderView folderView = ((HdViewPart) view).getFolderView();
+            final FolderView folderView = view.getFolderView();
             final ItemModel iModel = folderView.getModel().getItemModel(folderView.getSelectionItemHash());
             iModel.fireExecute(new ModelEvent(ModelEvent.EXPORT, iModel));
 
             final StringWriter writer = new StringWriter();
             BaseUtils.writeJavaHttpClient5(iModel, writer);
 
-            final ExportDialog dialog = new ExportDialog(view, "Apache HTTP Components 5.x call", "Your call exported as Java Apache HTTP Components 5.x call.",
+            final ExportDialog dialog = new ExportDialog(shell, view.getFolderView(), "Apache HTTP Components 5.x call", "Your call exported as Java Apache HTTP Components 5.x call.",
                     writer.toString());
             dialog.open();
         } catch (final Exception e) {

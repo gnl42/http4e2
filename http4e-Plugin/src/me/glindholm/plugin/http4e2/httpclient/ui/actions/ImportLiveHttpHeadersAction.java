@@ -7,7 +7,9 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
+
+import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
 
 import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
@@ -18,10 +20,12 @@ import me.glindholm.plugin.http4e2.httpclient.ui.preferences.PreferenceConstants
 
 public class ImportLiveHttpHeadersAction extends Action {
 
-    private final ViewPart view;
+    private final Shell shell;
+    private final HdViewPart view;
     private Menu fMenu;
 
-    public ImportLiveHttpHeadersAction(final ViewPart view) {
+    public ImportLiveHttpHeadersAction(final Shell shell, final HdViewPart view) {
+        this.shell = shell;
         this.view = view;
         fMenu = null;
         setToolTipText("Import Firefox LiveHTTP Headers");
@@ -47,7 +51,7 @@ public class ImportLiveHttpHeadersAction extends Action {
 
         try {
 
-            final FileDialog fileDialog = new FileDialog(view.getSite().getShell(), SWT.OPEN);
+            final FileDialog fileDialog = new FileDialog(shell, SWT.OPEN);
 
             fileDialog.setFileName("*.*");
             fileDialog.setFilterNames(new String[] { "Import Firefox LiveHTTP Headers *.*" });
@@ -57,11 +61,9 @@ public class ImportLiveHttpHeadersAction extends Action {
 
             final String path = fileDialog.open();
             if (path != null) {
-                final HdViewPart hdView = (HdViewPart) view;
-                final List<ItemModel> iteModels = BaseUtils.importLiveHttpHeaders(path, hdView.getFolderView().getModel());
-                final HdViewPart hdViewPart = (HdViewPart) view;
+                final List<ItemModel> iteModels = BaseUtils.importLiveHttpHeaders(path, view.getFolderView().getModel());
                 for (final ItemModel im : iteModels) {
-                    hdViewPart.getFolderView().buildTab(im);
+                    view.getFolderView().buildTab(im);
                 }
 
                 updateUserHomeDir(path);

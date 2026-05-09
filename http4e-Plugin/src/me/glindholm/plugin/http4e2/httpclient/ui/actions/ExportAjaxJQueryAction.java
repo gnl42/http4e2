@@ -5,7 +5,8 @@ import java.io.StringWriter;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
+
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
@@ -19,10 +20,12 @@ import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
 
 public class ExportAjaxJQueryAction extends Action {
 
-    private final ViewPart view;
+    private final Shell shell;
+    private final HdViewPart view;
     private Menu fMenu;
 
-    public ExportAjaxJQueryAction(final ViewPart view) {
+    public ExportAjaxJQueryAction(final Shell shell, final HdViewPart view) {
+        this.shell = shell;
         this.view = view;
         fMenu = null;
         setToolTipText("Export call as JQuery script");
@@ -46,14 +49,14 @@ public class ExportAjaxJQueryAction extends Action {
     @Override
     public void run() {
         try {
-            final FolderView folderView = ((HdViewPart) view).getFolderView();
+            final FolderView folderView = view.getFolderView();
             final ItemModel iModel = folderView.getModel().getItemModel(folderView.getSelectionItemHash());
             iModel.fireExecute(new ModelEvent(ModelEvent.EXPORT, iModel));
 
             final StringWriter writer = new StringWriter();
             BaseUtils.writeJsJQuery(iModel, writer);
 
-            final ExportDialog dialog = new ExportDialog(view, "JavaScript JQuery HTTP client", "Your call exported as a JavaScript AJAX JQuery code.",
+            final ExportDialog dialog = new ExportDialog(shell, view.getFolderView(), "JavaScript JQuery HTTP client", "Your call exported as a JavaScript AJAX JQuery code.",
                     writer.toString());
             dialog.open();
         } catch (final Exception e) {

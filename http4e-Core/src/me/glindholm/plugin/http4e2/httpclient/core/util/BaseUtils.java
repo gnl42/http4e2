@@ -28,8 +28,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.eclipse.core.runtime.Plugin;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
@@ -68,13 +68,10 @@ public class BaseUtils {
 
     public static void writeToPrefs(final String prefName, final byte[] prefData) {
         try {
-            final Plugin pl = (Plugin) CoreContext.getContext().getObject("p");
-            final Preferences prefs = pl.getPluginPreferences();
-
+            final IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(CoreConstants.PLUGIN_UI);
             final String str64 = new String(Base64.getEncoder().encode(prefData), "UTF8");
-            prefs.setValue(prefName, str64);
-            pl.savePluginPreferences();
-
+            prefs.put(prefName, str64);
+            prefs.flush();
         } catch (final Exception ignore) {
             ExceptionHandler.handle(ignore);
         }
@@ -82,12 +79,12 @@ public class BaseUtils {
 
     public static byte[] readFromPrefs(final String prefName) {
         try {
-            final Plugin pl = (Plugin) CoreContext.getContext().getObject("p");
-            final Preferences prefs = pl.getPluginPreferences();
-            final String str64 = prefs.getString(prefName);
-            final byte[] data = Base64.getDecoder().decode(str64.getBytes("UTF8"));
-            return data;
-
+            final IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(CoreConstants.PLUGIN_UI);
+            final String str64 = prefs.get(prefName, "");
+            if (str64.isEmpty()) {
+                return null;
+            }
+            return Base64.getDecoder().decode(str64.getBytes("UTF8"));
         } catch (final Exception ignore) {
             ExceptionHandler.handle(ignore);
         }
