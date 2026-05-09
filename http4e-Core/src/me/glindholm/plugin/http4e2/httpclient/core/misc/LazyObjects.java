@@ -15,6 +15,8 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.core.misc;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -49,13 +51,18 @@ public class LazyObjects {
         return headerTracker;
     }
 
-    public static List getHttpHeaders() {
+    public static List<String> getHttpHeaders() {
         final CoreContext ctx = CoreContext.getContext();
-        List httpHeaders = (List) ctx.getObject(CoreObjects.HTTP_HEADERS);
+        List<String> httpHeaders = (List<String>) ctx.getObject(CoreObjects.HTTP_HEADERS);
 
         if (httpHeaders == null) {
-            httpHeaders = BaseUtils.loadList(ResourceUtils.getBundleResourceStream(CoreConstants.PLUGIN_CORE, CoreImages.FILE_HEADERS));
-            ctx.putObject(CoreObjects.HTTP_HEADERS, httpHeaders);
+            try (InputStream resource = ResourceUtils.getBundleResourceStream(CoreConstants.PLUGIN_CORE, CoreImages.FILE_HEADERS)) {
+				httpHeaders = BaseUtils.loadList(resource);
+				ctx.putObject(CoreObjects.HTTP_HEADERS, httpHeaders);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
         }
         return httpHeaders;
     }

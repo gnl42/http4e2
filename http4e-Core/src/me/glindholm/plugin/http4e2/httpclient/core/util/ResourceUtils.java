@@ -47,110 +47,110 @@ import me.glindholm.plugin.http4e2.httpclient.core.misc.Styles.FontStyle;
  */
 public class ResourceUtils {
 
-    private static ResourceCache resourceCache;
+	private static ResourceCache resourceCache;
 
-    static {
-        resourceCache = (ResourceCache) CoreContext.getContext().getObject(CoreObjects.RESOURCE_CACHE);
-        if (resourceCache == null) {
-            resourceCache = new ResourceCache();
-            CoreContext.getContext().putObject(CoreObjects.RESOURCE_CACHE, resourceCache);
-        }
-    }
+	static {
+		resourceCache = (ResourceCache) CoreContext.getContext().getObject(CoreObjects.RESOURCE_CACHE);
+		if (resourceCache == null) {
+			resourceCache = new ResourceCache();
+			CoreContext.getContext().putObject(CoreObjects.RESOURCE_CACHE, resourceCache);
+		}
+	}
 
-    public static ImageDescriptor getImageDescriptor(final String pluginID, final String image) {
-        if (Utils.isIDE()) {
-            final URL url = FileLocator.find(Platform.getBundle(pluginID), new Path(image), null);
-            if (url != null) {
-                return ImageDescriptor.createFromURL(url);
-            }
-            return ImageDescriptor.getMissingImageDescriptor();
-        } else {
-            return ImageDescriptor.createFromFile(null, image);
-        }
-    }
+	public static ImageDescriptor getImageDescriptor(final String pluginID, final String image) {
+		if (Utils.isIDE()) {
+			final URL url = FileLocator.find(Platform.getBundle(pluginID), new Path(image), null);
+			if (url != null) {
+				return ImageDescriptor.createFromURL(url);
+			}
+			return ImageDescriptor.getMissingImageDescriptor();
+		} else {
+			return ImageDescriptor.createFromFile(null, image);
+		}
+	}
 
-    public static Image getImage(final String pluginID, final String image) {
-        if (Utils.isIDE()) {
-            final URL url = FileLocator.find(Platform.getBundle(pluginID), new Path(image), null);
-            final ImageDescriptor descriptor = url != null ? ImageDescriptor.createFromURL(url) : ImageDescriptor.getMissingImageDescriptor();
-            return resourceCache.getImage(descriptor);
-        } else {
-            return resourceCache.getImage(image);
-        }
-    }
+	public static Image getImage(final String pluginID, final String image) {
+		if (Utils.isIDE()) {
+			final URL url = FileLocator.find(Platform.getBundle(pluginID), new Path(image), null);
+			final ImageDescriptor descriptor = url != null ? ImageDescriptor.createFromURL(url)
+					: ImageDescriptor.getMissingImageDescriptor();
+			return resourceCache.getImage(descriptor);
+		} else {
+			return resourceCache.getImage(image);
+		}
+	}
 
-    public static void disposeResources() {
-        resourceCache.dispose();
-    }
+	public static void disposeResources() {
+		resourceCache.dispose();
+	}
 
-    public static Font getFont(final FontStyle fontStyle) {
-        return resourceCache.getFont(fontStyle);
-    }
+	public static Font getFont(final FontStyle fontStyle) {
+		return resourceCache.getFont(fontStyle);
+	}
 
-    public static Color getColor(final RGB rgb) {
-        return resourceCache.getColor(rgb);
-    }
+	public static Color getColor(final RGB rgb) {
+		return resourceCache.getColor(rgb);
+	}
 
-    public static Cursor getCursor(final int id) {
-        return resourceCache.getCursor(id);
-    }
+	public static Cursor getCursor(final int id) {
+		return resourceCache.getCursor(id);
+	}
 
-    public static ResourceCache getResourceCache() {
-        return resourceCache;
-    }
+	public static ResourceCache getResourceCache() {
+		return resourceCache;
+	}
 
-    public static String getBundleResourcePath(final String pluginID, final String uri) {
-        try {
-            final URL url = FileLocator.find(Platform.getBundle(pluginID), new Path(uri), null);
-            return FileLocator.resolve(url).toExternalForm();
-        } catch (final IOException e1) {
-            ExceptionHandler.handle(e1);
-        }
-        return null;
-    }
+	public static String getBundleResourcePath(final String pluginID, final String uri) {
+		try {
+			final URL url = FileLocator.find(Platform.getBundle(pluginID), new Path(uri), null);
+			return FileLocator.resolve(url).toExternalForm();
+		} catch (final IOException e1) {
+			ExceptionHandler.handle(e1);
+		}
+		return null;
+	}
 
-    public static byte[] getBundleResourceBytes(final String pluginID, final String uri) {
-        byte[] data = {};
-        try (final InputStream in = getBundleResourceStream(pluginID, uri)) {
-            data = new byte[in.available()];
-            in.read(data);
-        } catch (final Exception e) {
-            ExceptionHandler.handle(e);
-        }
-        return data;
-    }
+	public static byte[] getBundleResourceBytes(final String pluginID, final String uri) {
+		byte[] data = {};
+		try (final InputStream in = getBundleResourceStream(pluginID, uri)) {
+			data = new byte[in.available()];
+			in.read(data);
+		} catch (final Exception e) {
+			ExceptionHandler.handle(e);
+		}
+		return data;
+	}
 
-    public static InputStream getBundleResourceStream(final String pluginID, final String uri) {
-        try {
-            if (Utils.isIDE()) {
-                return FileLocator.openStream(Platform.getBundle(pluginID), new Path(uri), false);
-            } else {
-                return new FileInputStream(uri);
-            }
-        } catch (final Throwable e) {
-            ExceptionHandler.handle(e);
-        }
-        return null;
-    }
+	public static InputStream getBundleResourceStream(final String pluginID, final String uri) {
+		try {
+			if (Utils.isIDE()) {
+				return FileLocator.openStream(Platform.getBundle(pluginID), new Path(uri), false);
+			} else {
+				return new FileInputStream(uri);
+			}
+		} catch (final Throwable e) {
+			ExceptionHandler.handle(e);
+		}
+		return null;
+	}
 
-    public static InputStream getBundleResourceStream2(final String pluginID, final String uri) throws IOException {
-        if (Utils.isIDE()) {
-            return FileLocator.openStream(Platform.getBundle(pluginID), new Path(uri), false);
-        } else {
-            return new FileInputStream(uri);
-        }
-    }
+	public static InputStream getBundleResourceStream2(final String pluginID, final String uri) throws IOException {
+		if (Utils.isIDE()) {
+			return FileLocator.openStream(Platform.getBundle(pluginID), new Path(uri), false);
+		} else {
+			return new FileInputStream(uri);
+		}
+	}
 
-    public static Properties getBundleProperties(final String pluginID, final String uri) {
-        final Properties properties = new Properties();
-        try {
-            final InputStreamReader inR = new InputStreamReader(getBundleResourceStream(pluginID, uri), "UTF8");
-            final BufferedReader bufR = new BufferedReader(inR);
-            properties.load(bufR);
-        } catch (final Throwable e) {
-            ExceptionHandler.handle(e);
-        }
-        return properties;
-    }
+	public static Properties getBundleProperties(final String pluginID, final String uri) {
+		final Properties properties = new Properties();
+		try (final InputStreamReader inR = new InputStreamReader(getBundleResourceStream(pluginID, uri), "UTF8");
+				final BufferedReader bufR = new BufferedReader(inR)) {
+			properties.load(bufR);
+		} catch (final Throwable e) {
+			ExceptionHandler.handle(e);
+		}
+		return properties;
+	}
 
 }

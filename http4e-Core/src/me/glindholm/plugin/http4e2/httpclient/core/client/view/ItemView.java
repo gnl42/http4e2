@@ -32,7 +32,6 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -160,7 +159,6 @@ class ItemView implements ModelListener, Serializable {
                 return;
             }
             if (!isPost()) {
-                @SuppressWarnings("unchecked")
 				final String textParams = ParseUtils.doUrlToParam2(urlCombo.getText(), ParseUtils.linesToMap2(paramView.getViewText()), true);
                 paramView.setText(textParams);
             }
@@ -227,7 +225,6 @@ class ItemView implements ModelListener, Serializable {
 
         } else if (e.getType() == ModelEvent.URL_FOCUS_LOST) {
             if (!isPost()) {
-                @SuppressWarnings("unchecked")
 				final String textParams = ParseUtils.doUrlToParam2(urlCombo.getText(), ParseUtils.linesToMap2(paramView.getViewText()), true);
                 paramView.setText(textParams);
             }

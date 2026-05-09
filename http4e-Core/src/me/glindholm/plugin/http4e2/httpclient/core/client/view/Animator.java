@@ -15,6 +15,8 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.core.client.view;
 
+import java.io.InputStream;
+
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.widgets.Control;
@@ -42,9 +44,9 @@ class Animator {
         if (gifRunner != null) {
             gifRunner.stop();
         }
-        try {
+        try (final InputStream stream = ResourceUtils.getBundleResourceStream(CoreConstants.PLUGIN_CORE, CoreImages.LOADING_ON)) {
             final ImageLoader imageLoader = new ImageLoader();
-            imageLoader.load(ResourceUtils.getBundleResourceStream(CoreConstants.PLUGIN_CORE, CoreImages.LOADING_ON));
+            imageLoader.load(stream);
             gifRunner = new AnimatedGIFRunner(parent, imageLoader, backgroundImage);
         } catch (final Exception e) {
             throw CoreException.getInstance(CoreException.GENERAL, e);

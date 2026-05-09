@@ -31,270 +31,271 @@ import me.glindholm.plugin.http4e2.httpclient.core.util.ParseUtils;
  */
 public class Utils {
 
-    public static boolean isIDE() {
-        return CoreContext.getContext().getObject(CoreObjects.IS_STANDALONE) == null;
-    }
+	public static boolean isIDE() {
+		return CoreContext.getContext().getObject(CoreObjects.IS_STANDALONE) == null;
+	}
 
-    public static boolean isAutoAssistInvoked(final KeyEvent e) {
-        if (e.keyCode == 32 && (e.stateMask & SWT.CTRL) != 0 || e.keyCode == 32 && (e.stateMask & SWT.COMMAND) != 0) {
-            return true;
+	public static boolean isAutoAssistInvoked(final KeyEvent e) {
+		if (e.keyCode == 32 && (e.stateMask & SWT.CTRL) != 0 || e.keyCode == 32 && (e.stateMask & SWT.COMMAND) != 0) {
+			return true;
 
-        } else if (e.character == ' ' && (e.stateMask & SWT.CTRL) != 0 || e.character == ' ' && (e.stateMask & SWT.COMMAND) != 0) {
-            return true;
+		} else if (e.character == ' ' && (e.stateMask & SWT.CTRL) != 0
+				|| e.character == ' ' && (e.stateMask & SWT.COMMAND) != 0) {
+			return true;
 
-        }
-        return false;
+		}
+		return false;
 
-    }
+	}
 
-    public static ToolItem getItem(final int position, final ViewForm vForm) {
-        final ToolItem item = null;
-        final Control[] arr1 = vForm.getChildren();
-        for (final Control element : arr1) {
-            if (element instanceof final ToolBar tBar) {
-                final ToolItem[] arr2 = tBar.getItems();
-                return arr2[position];
-            }
-        }
-        return item;
-    }
+	public static ToolItem getItem(final int position, final ViewForm vForm) {
+		final ToolItem item = null;
+		final Control[] arr1 = vForm.getChildren();
+		for (final Control element : arr1) {
+			if (element instanceof final ToolBar tBar) {
+				final ToolItem[] arr2 = tBar.getItems();
+				return arr2[position];
+			}
+		}
+		return item;
+	}
 
-    public static boolean isHttp(final String url) {
-        if (url != null && url.startsWith(CoreConstants.PROTOCOL_HTTP)) {
-            return true;
-        }
-        return false;
-    }
+	public static boolean isHttp(final String url) {
+		if (url != null && url.startsWith(CoreConstants.PROTOCOL_HTTP)) {
+			return true;
+		}
+		return false;
+	}
 
-    public static boolean isHttpS(final String url) {
-        if (url != null && url.startsWith(CoreConstants.PROTOCOL_HTTPS)) {
-            return true;
-        }
-        return false;
-    }
+	public static boolean isHttpS(final String url) {
+		if (url != null && url.startsWith(CoreConstants.PROTOCOL_HTTPS)) {
+			return true;
+		}
+		return false;
+	}
 
-    public static String appendProtocol(String url) {
-        if (url != null && !isHttp(url) && !isHttpS(url)) {
-            url = CoreConstants.PROTOCOL_HTTP + url;
-        }
-        return url;
-    }
+	public static String appendProtocol(String url) {
+		if (url != null && !isHttp(url) && !isHttpS(url)) {
+			url = CoreConstants.PROTOCOL_HTTP + url;
+		}
+		return url;
+	}
 
-    public static String trimProtocol(String url) {
-        if (url != null) {
-            if (isHttp(url)) {
-                url = url.substring(CoreConstants.PROTOCOL_HTTP.length());
-            } else if (isHttpS(url)) {
-                url = url.substring(CoreConstants.PROTOCOL_HTTPS.length());
-            }
-        }
-        return url;
-    }
+	public static String trimProtocol(String url) {
+		if (url != null) {
+			if (isHttp(url)) {
+				url = url.substring(CoreConstants.PROTOCOL_HTTP.length());
+			} else if (isHttpS(url)) {
+				url = url.substring(CoreConstants.PROTOCOL_HTTPS.length());
+			}
+		}
+		return url;
+	}
 
-    public static void viewToModel(final ItemModel iModel, final ItemView iView) {
+	public static void viewToModel(final ItemModel iModel, final ItemView iView) {
 
-        if (iView.getTabName() != null) {
-            iModel.setName(iView.getTabName());
-        } else {
-            iModel.setName(trimProtocol(iView.urlCombo.getText()));
-        }
-        iModel.setHttpMethod(iView.httpCombo.getText());
-        iModel.setUrl(appendProtocol(iView.urlCombo.getText()));
-        iModel.setHSashWeights(iView.hSash.getWeights());
-        iModel.setVSashWeights(iView.vSash.getWeights());
+		if (iView.getTabName() != null) {
+			iModel.setName(iView.getTabName());
+		} else {
+			iModel.setName(trimProtocol(iView.urlCombo.getText()));
+		}
+		iModel.setHttpMethod(iView.httpCombo.getText());
+		iModel.setUrl(appendProtocol(iView.urlCombo.getText()));
+		iModel.setHSashWeights(iView.hSash.getWeights());
+		iModel.setVSashWeights(iView.vSash.getWeights());
 
-        // TODO bytes[], mulitpart ?
-        iModel.setBody(iView.bodyView.getText());
+		// TODO bytes[], mulitpart ?
+		iModel.setBody(iView.bodyView.getText());
 
-        iModel.clearHeaders();
-        iModel.clearParameters();
+		iModel.clearHeaders();
+		iModel.clearParameters();
 
-        textToModelHeaders(iView.headerView.getViewText(), iModel);
-        String txt = iView.paramView.getViewText();
-        txt = txt.replace('\\', '/');
-        textToModelParams(txt, iModel);
+		textToModelHeaders(iView.headerView.getViewText(), iModel);
+		String txt = iView.paramView.getViewText();
+		txt = txt.replace('\\', '/');
+		textToModelParams(txt, iModel);
 
-        // TODO use Auth and Proxy per item not globally
-        final CoreContext ctx = CoreContext.getContext();
-        iModel.setProxy((ProxyItem) ctx.getObject(CoreObjects.PROXY_ITEM));
-        // Auth is per-tab: do not overwrite iModel's auth from global context
-    }
+		// TODO use Auth and Proxy per item not globally
+		final CoreContext ctx = CoreContext.getContext();
+		iModel.setProxy((ProxyItem) ctx.getObject(CoreObjects.PROXY_ITEM));
+		// Auth is per-tab: do not overwrite iModel's auth from global context
+	}
 
-    public static void textToModelHeaders(final String text, final ItemModel iModel) {
-        iModel.clearHeaders();
-        if (text != null && !text.trim().equals("")) {
-            final Properties p = new Properties();
-            try {
-                final InputStreamReader inR = new InputStreamReader(new ByteArrayInputStream(text.getBytes("UTF8")), "UTF8");
-                final BufferedReader buf = new BufferedReader(inR);
-                p.load(buf);
+	public static void textToModelHeaders(final String text, final ItemModel iModel) {
+		iModel.clearHeaders();
+		if (text != null && !text.trim().equals("")) {
+			final Properties p = new Properties();
+			try (InputStreamReader inR = new InputStreamReader(new ByteArrayInputStream(text.getBytes("UTF8")),
+					"UTF8");
+					BufferedReader buf = new BufferedReader(inR);
+					) {
+				p.load(buf);
+			} catch (final UnsupportedEncodingException e) {
+				throw new CoreException(CoreException.UNSUPPORTED_ENCODING, e);
+			} catch (final IOException e) {
+				throw new CoreException(CoreException.IO_EXCEPTION, e);
+			}
 
-            } catch (final UnsupportedEncodingException e) {
-                throw new CoreException(CoreException.UNSUPPORTED_ENCODING, e);
-            } catch (final IOException e) {
-                throw new CoreException(CoreException.IO_EXCEPTION, e);
-            }
+			for (final Object element : p.entrySet()) {
+				final Map.Entry<String, String> me = (Map.Entry<String, String>) element;
+				iModel.addHeader(me.getKey(), me.getValue());
+			}
+		}
+	}
 
-            for (final Object element : p.entrySet()) {
-                final Map.Entry<String, String> me = (Map.Entry<String, String>) element;
-                iModel.addHeader(me.getKey(), me.getValue());
-            }
-        }
-    }
+	public static void textToModelParams(final String text, final ItemModel iModel) {
+		iModel.clearParameters();
+		if (!CoreConstants.EMPTY_TEXT.equals(text)) {
+			final Properties p = new Properties();
+			try (InputStreamReader inR = new InputStreamReader(new ByteArrayInputStream(text.getBytes("UTF8")), "UTF8");
+					BufferedReader buf = new BufferedReader(inR)) {
+				p.load(buf);
+			} catch (final UnsupportedEncodingException e) {
+				throw new CoreException(CoreException.UNSUPPORTED_ENCODING, e);
+			} catch (final IOException e) {
+				throw new CoreException(CoreException.IO_EXCEPTION, e);
+			}
 
-    public static void textToModelParams(final String text, final ItemModel iModel) {
-        iModel.clearParameters();
-        if (!CoreConstants.EMPTY_TEXT.equals(text)) {
-            final Properties p = new Properties();
-            try {
-                final InputStreamReader inR = new InputStreamReader(new ByteArrayInputStream(text.getBytes("UTF8")), "UTF8");
-                final BufferedReader buf = new BufferedReader(inR);
-                p.load(buf);
+			for (final Object element : p.entrySet()) {
+				@SuppressWarnings("unchecked")
+				final Map.Entry<String, String> me = (Map.Entry<String, String>) element;
+				iModel.addParameter(me.getKey(), me.getValue());
+			}
+		}
+	}
 
-            } catch (final UnsupportedEncodingException e) {
-                throw new CoreException(CoreException.UNSUPPORTED_ENCODING, e);
-            } catch (final IOException e) {
-                throw new CoreException(CoreException.IO_EXCEPTION, e);
-            }
+	public static void modelToView(final ItemModel iModel, final ItemView iView) {
 
-            for (final Object element : p.entrySet()) {
-                final Map.Entry<String, String> me = (Map.Entry<String, String>) element;
-                iModel.addParameter(me.getKey(), me.getValue());
-            }
-        }
-    }
+		iView.httpCombo.setText(iModel.getHttpMethod());
+		iView.urlCombo.setText(iModel.getUrl());
+		if (iModel.getHeaders().isEmpty()) {
+			iModel.fireExecute(new ModelEvent(ModelEvent.HEADERS_FOCUS_LOST, iModel));
+		} else {
+			iView.headerView.setText(listToString(iModel.getHeaders()));
+		}
+		if (iModel.getParameters().isEmpty()) {
+			iModel.fireExecute(new ModelEvent(ModelEvent.PARAMS_FOCUS_LOST, iModel));
+		} else {
+			iView.paramView.setText(listToString(iModel.getParameters()));
+		}
 
-    public static void modelToView(final ItemModel iModel, final ItemView iView) {
+		iView.bodyView.setText(iModel.getBody());
+		iView.requestView.setHttpText(iModel.getRequest());
+		iView.responseView.setHttpText(iModel.getResponse());
+		iView.tabItem.setText(ParseUtils.toTitle(iModel.getName()));
+		iView.tabeNameText.setText(iView.tabItem.getText());
+	}
 
-        iView.httpCombo.setText(iModel.getHttpMethod());
-        iView.urlCombo.setText(iModel.getUrl());
-        if (iModel.getHeaders().isEmpty()) {
-            iModel.fireExecute(new ModelEvent(ModelEvent.HEADERS_FOCUS_LOST, iModel));
-        } else {
-            iView.headerView.setText(listToString(iModel.getHeaders()));
-        }
-        if (iModel.getParameters().isEmpty()) {
-            iModel.fireExecute(new ModelEvent(ModelEvent.PARAMS_FOCUS_LOST, iModel));
-        } else {
-            iView.paramView.setText(listToString(iModel.getParameters()));
-        }
+	private static HttpBean urlToHttpBean(final String url) {
 
-        iView.bodyView.setText(iModel.getBody());
-        iView.requestView.setHttpText(iModel.getRequest());
-        iView.responseView.setHttpText(iModel.getResponse());
-        iView.tabItem.setText(ParseUtils.toTitle(iModel.getName()));
-        iView.tabeNameText.setText(iView.tabItem.getText());
-    }
+		String domain = "";
+		String path = "";
+		String port = "";
+		int domainInx = -1;
+		String domainPortPath = "";
 
-    private static HttpBean urlToHttpBean(final String url) {
+		final String[] splitt = url.split("://");
+		final String protocol = splitt[0];
 
-        String domain = "";
-        String path = "";
-        String port = "";
-        int domainInx = -1;
-        String domainPortPath = "";
+		try {
+			domainPortPath = splitt[1];
+			domainInx = domainPortPath.indexOf("/");
+			if (domainInx < 0) {
+				final int questIndx = domainPortPath.indexOf("?");
+				if (questIndx < 0) {
+					domainInx = domainPortPath.length();
+				} else {
+					domainInx = questIndx;
+				}
+			}
+		} catch (final Exception ignore) {
+			// ignore.printStackTrace();
+		}
+		try {
+			domain = domainPortPath.substring(0, domainInx);
+			path = domainPortPath.substring(domainInx);
 
-        final String[] splitt = url.split("://");
-        final String protocol = splitt[0];
+			final String[] domainPort = domain.split(":");
+			domain = domainPort[0];
+			port = domainPort[1];
+		} catch (final Exception ignore) {
+			// ignore.printStackTrace();
+		}
 
-        try {
-            domainPortPath = splitt[1];
-            domainInx = domainPortPath.indexOf("/");
-            if (domainInx < 0) {
-                final int questIndx = domainPortPath.indexOf("?");
-                if (questIndx < 0) {
-                    domainInx = domainPortPath.length();
-                } else {
-                    domainInx = questIndx;
-                }
-            }
-        } catch (final Exception ignore) {
-            // ignore.printStackTrace();
-        }
-        try {
-            domain = domainPortPath.substring(0, domainInx);
-            path = domainPortPath.substring(domainInx);
+		final HttpBean bean = new HttpBean();
+		bean.setProtocol(protocol);
+		bean.setDomain(domain);
+		bean.setPath(path);
+		bean.setPort(port);
 
-            final String[] domainPort = domain.split(":");
-            domain = domainPort[0];
-            port = domainPort[1];
-        } catch (final Exception ignore) {
-            // ignore.printStackTrace();
-        }
+		return bean;
+	}
 
-        final HttpBean bean = new HttpBean();
-        bean.setProtocol(protocol);
-        bean.setDomain(domain);
-        bean.setPath(path);
-        bean.setPort(port);
+	public static HttpBean modelToHttpBean(final ItemModel iModel) {
 
-        return bean;
-    }
+		final HttpBean b = urlToHttpBean(iModel.getUrl());
 
-    public static HttpBean modelToHttpBean(final ItemModel iModel) {
+		b.setMethod(iModel.getHttpMethod());
 
-        final HttpBean b = urlToHttpBean(iModel.getUrl());
+		final boolean headersOnly = "GET".equalsIgnoreCase(iModel.getHttpMethod())
+				|| "HEAD".equalsIgnoreCase(iModel.getHttpMethod()) || "OPTIONS".equalsIgnoreCase(iModel.getHttpMethod())
+				|| "TRACE".equalsIgnoreCase(iModel.getHttpMethod())
+				|| "DELETE".equalsIgnoreCase(iModel.getHttpMethod());
 
-        b.setMethod(iModel.getHttpMethod());
+		if (headersOnly) {
+			b.setBody("");
+		} else {
+			b.setBody(iModel.getBody());
+		}
 
-        final boolean headersOnly = "GET".equalsIgnoreCase(iModel.getHttpMethod()) || "HEAD".equalsIgnoreCase(iModel.getHttpMethod())
-                || "OPTIONS".equalsIgnoreCase(iModel.getHttpMethod()) || "TRACE".equalsIgnoreCase(iModel.getHttpMethod())
-                || "DELETE".equalsIgnoreCase(iModel.getHttpMethod());
+		for (final String hName : iModel.getHeaders().keySet()) {
+			final List<String> hList = iModel.getHeaderValuesIgnoreCase(hName);
+			final StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < hList.size(); i++) {
+				sb.append(hList.get(i));
+				if (i < hList.size() - 1) {
+					sb.append(",");
+				}
+			}
+			final String hVal = sb.toString();
+			b.getHeaders().put(hName, hVal);
+		}
 
-        if (headersOnly) {
-            b.setBody("");
-        } else {
-            b.setBody(iModel.getBody());
-        }
+		if ("POST".equalsIgnoreCase(iModel.getHttpMethod())) {
+			// TODO it is retrieving only the last parameter from multiple paramset
+			for (final String key : iModel.getParameters().keySet()) {
+				final List<String> pList = iModel.getParameters().get(key);
+				b.getParams().put(key, "");
+				if (pList != null) {
+					for (final String pVal : pList) {
+						b.getParams().put(key, pVal);
+					}
+				}
+			}
+		}
 
-        for (final String hName : iModel.getHeaders().keySet()) {
-            final List<String> hList = iModel.getHeaderValuesIgnoreCase(hName);
-            final StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < hList.size(); i++) {
-                sb.append(hList.get(i));
-                if (i < hList.size() - 1) {
-                    sb.append(",");
-                }
-            }
-            final String hVal = sb.toString();
-            b.getHeaders().put(hName, hVal);
-        }
+		return b;
+	}
 
-        if ("POST".equalsIgnoreCase(iModel.getHttpMethod())) {
-            // TODO it is retrieving only the last parameter from multiple paramset
-            for (final String key : iModel.getParameters().keySet()) {
-                final List<String> pList = iModel.getParameters().get(key);
-                b.getParams().put(key, "");
-                if (pList != null) {
-                    for (final String pVal : pList) {
-                        b.getParams().put(key, pVal);
-                    }
-                }
-            }
-        }
-
-        return b;
-    }
-
-    public static String listToString(final Map<String, List<String>> map) {
-        final StringBuilder sb = new StringBuilder();
-        final int size = map.size();
-        int cnt = 0;
-        for (final String key : map.keySet()) {
-            cnt++;
-            sb.append(key + CoreConstants._EQ);
-            final List<String> values = map.get(key);
-            for (int i = 0; i < values.size(); i++) {
-                if (i != 0) {
-                    sb.append(CoreConstants._SEMICOL + CoreConstants._SPACE);
-                }
-                sb.append(values.get(i));
-            }
-            if (cnt != size) {
-                sb.append("\n");
-            }
-        }
-        return sb.toString();
-    }
+	public static String listToString(final Map<String, List<String>> map) {
+		final StringBuilder sb = new StringBuilder();
+		final int size = map.size();
+		int cnt = 0;
+		for (final String key : map.keySet()) {
+			cnt++;
+			sb.append(key + CoreConstants._EQ);
+			final List<String> values = map.get(key);
+			for (int i = 0; i < values.size(); i++) {
+				if (i != 0) {
+					sb.append(CoreConstants._SEMICOL + CoreConstants._SPACE);
+				}
+				sb.append(values.get(i));
+			}
+			if (cnt != size) {
+				sb.append("\n");
+			}
+		}
+		return sb.toString();
+	}
 
 }

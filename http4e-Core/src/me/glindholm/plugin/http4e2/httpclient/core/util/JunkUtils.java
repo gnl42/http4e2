@@ -25,6 +25,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Optional;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -90,13 +91,15 @@ public class JunkUtils {
         return false;
     }
 
-    public static void hexText(final StyledText styledText, final String text) {
-        try {
-            styledText.setText(HexUtils.toHex(text.getBytes(CoreConstants.UTF8)));
-        } catch (final IOException e) {
-            throw CoreException.getInstance(CoreException.UNSUPPORTED_ENCODING, e);
-        }
-    }
+	public static void hexText(final StyledText styledText, final String text) {
+		if (!text.isEmpty()) {
+			try {
+				styledText.setText(HexUtils.toHex(text.getBytes(CoreConstants.UTF8)));
+			} catch (final IOException e) {
+				throw CoreException.getInstance(CoreException.UNSUPPORTED_ENCODING, e);
+			}
+		}
+	}
 
     public static String prettyText(String text) {
 
@@ -225,10 +228,12 @@ public class JunkUtils {
                     .POST(BodyPublishers.ofString(formBody))
                     .build();
             final HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-            responseReader.read(response);
-            final java.util.Optional<String> header = response.headers().firstValue("hd-token");
-            if (header.isPresent()) {
-                return header.get();
+            try (final InputStream responseBody = response.body()) {
+                responseReader.read(response);
+                final Optional<String> header = response.headers().firstValue("hd-token");
+                if (header.isPresent()) {
+                    return header.get();
+                }
             }
         } catch (final Exception ignore) {
             ExceptionHandler.handle(ignore);

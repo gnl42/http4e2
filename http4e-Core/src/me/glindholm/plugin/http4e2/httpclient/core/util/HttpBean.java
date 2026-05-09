@@ -3,7 +3,7 @@ package me.glindholm.plugin.http4e2.httpclient.core.util;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
 
@@ -321,23 +321,23 @@ public class HttpBean {
     }
 
     public void filterXml() {
-        setBody(StringEscapeUtils.escapeXml(body));
-        setDomain(StringEscapeUtils.escapeXml(domain));
-        setPath(StringEscapeUtils.escapeXml(path));
-        setPort(StringEscapeUtils.escapeXml(port));
+        setBody(StringEscapeUtils.escapeXml10(body));
+        setDomain(StringEscapeUtils.escapeXml10(domain));
+        setPath(StringEscapeUtils.escapeXml10(path));
+        setPort(StringEscapeUtils.escapeXml10(port));
 
         for (final String key : getHeaders().keySet()) {
             final String val = getHeaders().get(key);
-            getHeaders().put(key, StringEscapeUtils.escapeXml(val));
+            getHeaders().put(key, StringEscapeUtils.escapeXml10(val));
         }
 
         for (final String key : getParams().keySet()) {
             final String val = getParams().get(key);
-            getParams().put(key, StringEscapeUtils.escapeXml(val));
+            getParams().put(key, StringEscapeUtils.escapeXml10(val));
         }
 
-        setRequest(StringEscapeUtils.escapeXml(request));
-        setResponse(StringEscapeUtils.escapeXml(response));
+        setRequest(StringEscapeUtils.escapeXml10(request));
+        setResponse(StringEscapeUtils.escapeXml10(response));
     }
 
     public void filterJava() {

@@ -21,7 +21,6 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import javax.crypto.Mac;
@@ -279,10 +278,8 @@ public class CryptUtils {
         final Provider[] providers = Security.getProviders();
         for (final Provider provider : providers) {
             // Get services provided by each provider
-            final Set keys = provider.keySet();
-            for (final Iterator<String> it = keys.iterator(); it.hasNext();) {
-                String key = it.next();
-                key = key.split(" ")[0];
+            for (final Object keyObj : provider.keySet()) {
+                String key = ((String) keyObj).split(" ")[0];
 
                 if (key.startsWith("Alg.Alias.")) {
                     // Strip the alias
@@ -305,10 +302,8 @@ public class CryptUtils {
         final Provider[] providers = Security.getProviders();
         for (final Provider provider : providers) {
             // Get services provided by each provider
-            final Set<Object> keys = provider.keySet();
-            for (final Iterator<Object> it = keys.iterator(); it.hasNext();) {
-                String key = (String) it.next();
-                key = key.split(" ")[0];
+            for (final Object keyObj : provider.keySet()) {
+                String key = ((String) keyObj).split(" ")[0];
 
                 if (key.startsWith(serviceType + ".")) {
                     result.add(key.substring(serviceType.length() + 1));

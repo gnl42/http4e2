@@ -17,20 +17,20 @@ package me.glindholm.plugin.http4e2.httpclient.core.client.model;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang3.text.StrTokenizer;
+import org.apache.commons.text.StringTokenizer;
 
 /**
  * <p>
  * Bean for holding proxy information. This version holds no authentication information.
  * </p>
- * 
+ *
  * @author andreaszbschmidt
  */
 public class ProxyItem implements Serializable {
 
     private static final String DELIMITER = ",";
     /**
-    * 
+    *
     */
     private static final long serialVersionUID = 1L;
     String host;
@@ -62,7 +62,7 @@ public class ProxyItem implements Serializable {
     public static ProxyItem createFromString(final String proxysettings) throws Exception {
         ProxyItem returnvalue = null;
         try {
-            final StrTokenizer tokenizer = new StrTokenizer(proxysettings, DELIMITER);
+            final StringTokenizer tokenizer = new StringTokenizer(proxysettings, DELIMITER);
             final String[] tokenArray = tokenizer.getTokenArray();
             final String name = tokenArray[0];
             final String host = tokenArray[1];

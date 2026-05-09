@@ -83,9 +83,8 @@ public class FolderModel implements Model, Serializable {
             return imList;
         }
         List<ItemModel> serList;
-        try {
-            final ByteArrayInputStream bais = new ByteArrayInputStream(data);
-            final ObjectInputStream ois = new ObjectInputStream(bais);
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
+        		ObjectInputStream ois = new ObjectInputStream(bais)) {
             serList = (List<ItemModel>) ois.readObject();
             final int size = serList.size();
             for (int i = size - 1; i > -1; i--) {
@@ -96,8 +95,6 @@ public class FolderModel implements Model, Serializable {
                     imList.add(im);
                 }
             }
-            ois.close();
-
         } catch (final EOFException | FileNotFoundException | ClassNotFoundException ignore) {
         } catch (final IOException e) {
             ExceptionHandler.warn("deserialize: " + e);// warning may be ..
@@ -145,12 +142,11 @@ public class FolderModel implements Model, Serializable {
             // oos.writeObject(serList);
             // oos.close();
 
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            final ObjectOutputStream oos2 = new ObjectOutputStream(baos);
-            oos2.writeObject(serList);
-            oos2.close();
-
-            return baos.toByteArray();
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					ObjectOutputStream oos2 = new ObjectOutputStream(baos)) {
+				oos2.writeObject(serList);
+				return baos.toByteArray();
+			}
 
         } catch (final Exception e) {
             throw new CoreException(CoreException.GENERAL, e);

@@ -15,7 +15,7 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.ui.preferences;
 
-import org.apache.commons.lang3.text.StrTokenizer;
+import org.apache.commons.text.StringTokenizer;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.ListEditor;
@@ -47,7 +47,7 @@ class SSLEditor extends ListEditor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.preference.ListEditor#createList(java.lang.String[])
      */
     @Override
@@ -65,7 +65,7 @@ class SSLEditor extends ListEditor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.preference.ListEditor#getNewInputObject()
      */
     @Override
@@ -85,12 +85,12 @@ class SSLEditor extends ListEditor {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see org.eclipse.jface.preference.ListEditor#parseString(java.lang.String)
      */
     @Override
     protected String[] parseString(final String stringList) {
-        final StrTokenizer tokenizer = new StrTokenizer(stringList, DELIMITER);
+        final StringTokenizer tokenizer = new StringTokenizer(stringList, DELIMITER);
         return tokenizer.getTokenArray();
     }
 

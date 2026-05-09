@@ -32,8 +32,7 @@ public class HAssistInfoMap {
 
     public HAssistInfoMap(final String file) {
         data = new Properties();
-        try {
-            final InputStream in = ResourceUtils.getBundleResourceStream2(CoreConstants.PLUGIN_CORE, file);
+        try (InputStream in = ResourceUtils.getBundleResourceStream2(CoreConstants.PLUGIN_CORE, file)) {
             if (in != null) {
                 data.load(in);
             }

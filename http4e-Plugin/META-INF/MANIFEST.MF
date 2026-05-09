@@ -18,9 +18,11 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.e4.ui.model.workbench,
  org.eclipse.e4.ui.workbench,
  org.eclipse.e4.ui.css.swt,
- me.glindholm.plugin.http4e2.core
+ me.glindholm.plugin.http4e2.core,
+ org.eclipse.e4.ui.css.swt.theme;bundle-version="0.15.0",
+ org.eclipse.ui.themes;bundle-version="1.2.2900"
 Import-Package: jakarta.annotation;version="[2.0.0,3.0.0)",
  jakarta.inject,
- org.apache.commons.lang3.text,
+ org.apache.commons.text;version="[1.15.0,2.0.0)",
  org.eclipse.e4.ui.workbench.modeling,
  org.osgi.service.prefs

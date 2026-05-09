@@ -32,7 +32,6 @@ import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
-import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
 import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.FolderModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
@@ -139,42 +138,30 @@ public class BaseUtils {
         return str != null ? str : val;
     }
 
+    private static InputStream openPropertyStream(final String propResource) throws IOException {
+        final File file = new File(propResource);
+        if (file.exists()) {
+            return new FileInputStream(file);
+        }
+        return Thread.currentThread().getContextClassLoader().getResourceAsStream(propResource);
+    }
+
     public static Properties loadProperties(final String propResource) {
-        Properties properties = null;
         if (propResource == null) {
             throw new IllegalArgumentException("propertiesResource not provided !");
         }
-
-        InputStream is = null;
-        try {
-            try {
-                is = new FileInputStream(propResource);
-
-            } catch (final FileNotFoundException e) {
-                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(propResource);
+        try (final InputStream is = openPropertyStream(propResource)) {
+            if (is == null || is.available() < 1) {
+                throw new RuntimeException("Properties '" + propResource + "' not initilized. Skipping..");
             }
-
-            try {
-                if (is == null || is.available() < 1) {
-                    throw new RuntimeException("Properties '" + propResource + "' not initilized. Skipping..");
-                }
-                properties = new Properties();
-                final InputStreamReader inR = new InputStreamReader(is, "UTF8");
-                final BufferedReader bufR = new BufferedReader(inR);
+            final Properties properties = new Properties();
+            try (final BufferedReader bufR = new BufferedReader(new InputStreamReader(is, "UTF8"))) {
                 properties.load(bufR);
-
-            } catch (final IOException ioe) {
-                throw new RuntimeException(ioe);
             }
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (final IOException e) {
-                }
-            }
+            return properties;
+        } catch (final IOException ioe) {
+            throw new RuntimeException(ioe);
         }
-        return properties;
     }
 
     public static List<String> loadList(final InputStream is) {

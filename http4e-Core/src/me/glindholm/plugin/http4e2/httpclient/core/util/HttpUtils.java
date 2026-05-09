@@ -53,13 +53,14 @@ public class HttpUtils {
                 }
             });
 
-            final InputStreamReader inR = new InputStreamReader(response.body());
-            final BufferedReader buf = new BufferedReader(inR);
-            String line;
-            while ((line = buf.readLine()) != null) {
-                out.println(line);
-            }
-            out.println("------------");
+            try (InputStreamReader inR = new InputStreamReader(response.body());
+					BufferedReader buf = new BufferedReader(inR)) {
+				String line;
+				while ((line = buf.readLine()) != null) {
+				    out.println(line);
+				}
+				out.println("------------");
+			}
 
         } catch (final Exception e) {
             throw new RuntimeException(e);
@@ -81,13 +82,14 @@ public class HttpUtils {
                 }
             });
 
-            final InputStreamReader inR = new InputStreamReader(response.body());
-            final BufferedReader buf = new BufferedReader(inR);
-            String line;
-            while ((line = buf.readLine()) != null) {
-                httpResponsePacket.append(line).append('\n');
-                respBody.append(line).append('\n');
-            }
+            try (InputStreamReader inR = new InputStreamReader(response.body());
+					BufferedReader buf = new BufferedReader(inR)) {
+				String line;
+				while ((line = buf.readLine()) != null) {
+				    httpResponsePacket.append(line).append('\n');
+				    respBody.append(line).append('\n');
+				}
+			}
             httpResponsePacket.append('\n');
 
         } catch (final Exception e) {
