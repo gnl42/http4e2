@@ -2,7 +2,7 @@
 <!--
  You can run JMeter JMX files using jmeter (https://jmeter.apache.org/download_jmeter.cgi).
 
- This script was generated with HTTP4e2 - the Eclipse REST client, http://www.nextinterfaces.com/http4e/
+ This script was generated with HTTP4e2 - the Eclipse REST client, https://www.nextinterfaces.com/http4e/
 -->
 <jmeterTestPlan version="1.2" properties="5.0">
   <hashTree>

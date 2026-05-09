@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <fragment:ModelFragments
     xmi:version="2.0"
-    xmlns:xmi="http://www.omg.org/XMI"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xmlns:basic="http://www.eclipse.org/ui/2010/UIModel/application/ui/basic"
-    xmlns:fragment="http://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic"
-    xmlns:menu="http://www.eclipse.org/ui/2010/UIModel/application/ui/menu">
+    xmlns:xmi="https://www.omg.org/XMI"
+    xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+    xmlns:basic="https://www.eclipse.org/ui/2010/UIModel/application/ui/basic"
+    xmlns:fragment="https://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic"
+    xmlns:menu="https://www.eclipse.org/ui/2010/UIModel/application/ui/menu">
 
   <!--
     PartDescriptor that EPartService.showPart() uses to instantiate HdViewPart
