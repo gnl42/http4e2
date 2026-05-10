@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -75,8 +75,7 @@ public class Tracker {
 
     public Collection<Tracker> getChildTrackers() {
         final List<Tracker> kids = new ArrayList<>();
-        for (final Iterator<String> iter = childTrackers.keySet().iterator(); iter.hasNext();) {
-            final String key = iter.next();
+        for (final String key : childTrackers.keySet()) {
             kids.add(childTrackers.get(key));
         }
         return kids;

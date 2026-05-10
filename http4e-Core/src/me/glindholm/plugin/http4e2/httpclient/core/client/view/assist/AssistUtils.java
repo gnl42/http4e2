@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,6 @@ package me.glindholm.plugin.http4e2.httpclient.core.client.view.assist;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -102,8 +101,7 @@ public class AssistUtils {
         final List<String> httpHeaders = LazyObjects.getHttpHeaders();
         final int qlen = qualifier.length();
 
-        for (final Iterator<String> iter = httpHeaders.iterator(); iter.hasNext();) {
-            final String text = iter.next();
+        for (final String text : httpHeaders) {
             if (text.toLowerCase().startsWith(qualifier.toLowerCase())) {
                 final int cursor = text.length();
                 final CompletionProposal cp = new CompletionProposal(text + AssistConstants.BRACKETS_COMPLETION, offset - qlen, qlen, cursor + 4,
@@ -131,8 +129,7 @@ public class AssistUtils {
 
         } else {
             final Collection<String> valsForHeader = LazyObjects.getValuesForHeader(lineKey);
-            for (final Iterator<String> iter = valsForHeader.iterator(); iter.hasNext();) {
-                final String val = iter.next();
+            for (final String val : valsForHeader) {
                 if (val.toLowerCase().startsWith(qualifier.toLowerCase())) {
                     final int cursor = val.length();
                     proposal = new CompletionProposal(val, offset - qlen, qlen, cursor + 1,
@@ -147,8 +144,7 @@ public class AssistUtils {
     private static void buildWordTrackProposals(final List<String> suggestions, final String replacedWord, final int offset,
             final List<ICompletionProposal> proposalsList) {
         int index = 0;
-        for (final Iterator<String> i = suggestions.iterator(); i.hasNext();) {
-            final String currSuggestion = i.next();
+        for (final String currSuggestion : suggestions) {
             proposalsList.add(new CompletionProposal(currSuggestion, offset, replacedWord.length(), currSuggestion.length(),
                     ResourceUtils.getImage(CoreConstants.PLUGIN_CORE, CoreImages.ASSIST_HEADER_CACHED), currSuggestion, null,
                     LazyObjects.getInfoMap("Headers").getInfo(currSuggestion)));

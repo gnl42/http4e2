@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -37,11 +37,13 @@ import org.eclipse.swt.widgets.Shell;
 @Deprecated
 public class GetUserInput extends ApplicationWindow {
 
-    public GetUserInput() {
+    @Deprecated
+	public GetUserInput() {
         super(null);
     }
 
-    public void run() {
+    @Deprecated
+	public void run() {
         // Don't return from open() until window closes
         setBlockOnOpen(true);
 
@@ -52,7 +54,8 @@ public class GetUserInput extends ApplicationWindow {
         Display.getCurrent().dispose();
     }
 
-    @Override
+    @Deprecated
+	@Override
     protected void configureShell(final Shell shell) {
         super.configureShell(shell);
 
@@ -60,7 +63,8 @@ public class GetUserInput extends ApplicationWindow {
         shell.setText("Get Input");
     }
 
-    @Override
+    @Deprecated
+	@Override
     protected Control createContents(final Composite parent) {
         final Composite composite = new Composite(parent, SWT.NONE);
         composite.setLayout(new GridLayout(1, false));
@@ -88,7 +92,8 @@ public class GetUserInput extends ApplicationWindow {
         return composite;
     }
 
-    public static void main(final String[] args) {
+    @Deprecated
+	public static void main(final String[] args) {
         new GetUserInput().run();
     }
 }

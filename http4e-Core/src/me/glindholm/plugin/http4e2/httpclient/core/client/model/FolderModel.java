@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang3.text.StrTokenizer;
+import org.apache.commons.text.StringTokenizer;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
@@ -43,7 +43,7 @@ import me.glindholm.plugin.http4e2.httpclient.core.util.BaseUtils;
 /**
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
-public class FolderModel implements Model {
+public class FolderModel implements Model, Serializable {
 
     private static final long serialVersionUID = -6512224765472818414L;
     public static final String PREF_VIEW_NAME = "v";
@@ -57,7 +57,7 @@ public class FolderModel implements Model {
 
     public FolderModel(final String availableProxiesString, final String availableKeystoresString) {
         availableProxies.add(ProxyItem.createDirectConnectionProxy());
-        for (final String proxysettings : new StrTokenizer(availableProxiesString, "#").getTokenArray()) {
+        for (final String proxysettings : new StringTokenizer(availableProxiesString, "#").getTokenArray()) {
             try {
                 availableProxies.add(ProxyItem.createFromString(proxysettings));
             } catch (final Exception e) {
@@ -68,13 +68,23 @@ public class FolderModel implements Model {
     }
 
     @SuppressWarnings("unchecked")
-    public List<ItemModel> deserialize(final byte[] data) {
+	public List<ItemModel> deserialize(final byte[] data) {
         final List<ItemModel> imList = new ArrayList<>();
         removeAll();
+        if (data == null || data.length == 0) {
+            // No saved state (e.g. first run) — fall through to the default-tab creation below
+            final ItemModel im = new ItemModel(this);
+            im.setAvailableProxies(availableProxies);
+            im.setAvailableKeystore(availableKeystore);
+            imList.add(im);
+            final CoreContext ctx = CoreContext.getContext();
+            ctx.putObject(CoreObjects.PROXY_ITEM, im.getProxy());
+            ctx.putObject(CoreObjects.PARAMETERIZE_ARGS, im.getParameteredArgs());
+            return imList;
+        }
         List<ItemModel> serList;
-        try {
-            final ByteArrayInputStream bais = new ByteArrayInputStream(data);
-            final ObjectInputStream ois = new ObjectInputStream(bais);
+        try (ByteArrayInputStream bais = new ByteArrayInputStream(data);
+        		ObjectInputStream ois = new ObjectInputStream(bais)) {
             serList = (List<ItemModel>) ois.readObject();
             final int size = serList.size();
             for (int i = size - 1; i > -1; i--) {
@@ -85,8 +95,6 @@ public class FolderModel implements Model {
                     imList.add(im);
                 }
             }
-            ois.close();
-
         } catch (final EOFException | FileNotFoundException | ClassNotFoundException ignore) {
         } catch (final IOException e) {
             ExceptionHandler.warn("deserialize: " + e);// warning may be ..
@@ -104,10 +112,9 @@ public class FolderModel implements Model {
         for (final ItemModel itemModel : imList) {
             itemModel.setAvailableProxies(availableProxies);
             itemModel.setAvailableKeystore(availableKeystore);
-            if (cnt == 0) { // FIXME. Those values belong to FolderModel, not
-                            // ItemModel
+            if (cnt == 0) {
+                // Auth is now per-tab (stored in ItemModel); only restore proxy and parameterize args globally
                 final CoreContext ctx = CoreContext.getContext();
-                ctx.putObject(CoreObjects.AUTH_ITEM, itemModel.getAuth());
                 ctx.putObject(CoreObjects.PROXY_ITEM, itemModel.getProxy());
                 ctx.putObject(CoreObjects.PARAMETERIZE_ARGS, itemModel.getParameteredArgs());
             }
@@ -124,7 +131,8 @@ public class FolderModel implements Model {
             final List<Serializable> serList = new ArrayList<>();
 
             final CoreContext ctx = CoreContext.getContext();
-            final Map<String, String> mapParmzArgs = (Map<String, String>) ctx.getObject(CoreObjects.PARAMETERIZE_ARGS);
+            @SuppressWarnings("unchecked")
+			final Map<String, String> mapParmzArgs = (Map<String, String>) ctx.getObject(CoreObjects.PARAMETERIZE_ARGS);
 
             for (final ItemModel im : itemList) {
                 im.setParameteredArgs(mapParmzArgs);
@@ -134,12 +142,11 @@ public class FolderModel implements Model {
             // oos.writeObject(serList);
             // oos.close();
 
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            final ObjectOutputStream oos2 = new ObjectOutputStream(baos);
-            oos2.writeObject(serList);
-            oos2.close();
-
-            return baos.toByteArray();
+            try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					ObjectOutputStream oos2 = new ObjectOutputStream(baos)) {
+				oos2.writeObject(serList);
+				return baos.toByteArray();
+			}
 
         } catch (final Exception e) {
             throw new CoreException(CoreException.GENERAL, e);

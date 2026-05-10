@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,6 +14,8 @@
  *  limitations under the License.
  */
 package me.glindholm.plugin.http4e2.httpclient.core.client.view;
+
+import java.io.InputStream;
 
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageLoader;
@@ -42,9 +44,9 @@ class Animator {
         if (gifRunner != null) {
             gifRunner.stop();
         }
-        try {
+        try (final InputStream stream = ResourceUtils.getBundleResourceStream(CoreConstants.PLUGIN_CORE, CoreImages.LOADING_ON)) {
             final ImageLoader imageLoader = new ImageLoader();
-            imageLoader.load(ResourceUtils.getBundleResourceStream(CoreConstants.PLUGIN_CORE, CoreImages.LOADING_ON));
+            imageLoader.load(stream);
             gifRunner = new AnimatedGIFRunner(parent, imageLoader, backgroundImage);
         } catch (final Exception e) {
             throw CoreException.getInstance(CoreException.GENERAL, e);

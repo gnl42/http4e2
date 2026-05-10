@@ -13,9 +13,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.ui.IViewSite;
-import org.eclipse.ui.part.ViewPart;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
@@ -23,7 +22,6 @@ import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreObjects;
 import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ProxyItem;
-import me.glindholm.plugin.http4e2.httpclient.core.client.view.FolderView;
 import me.glindholm.plugin.http4e2.httpclient.core.util.BaseUtils;
 import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
 import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
@@ -34,12 +32,12 @@ public class ProxyDialog extends TitleAreaDialog {
     private Text hostBox;
     private Text portBox;
     private ProxyItem proxyItem;
-    private final ViewPart viewPart;
+    private final HdViewPart hdViewPart;
 
-    public ProxyDialog(final ViewPart view) {
-        super(view.getViewSite().getShell());
+    public ProxyDialog(final Shell shell, final HdViewPart hdViewPart) {
+        super(shell);
         setTitleImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.LOGO_DIALOG));
-        viewPart = view;
+        this.hdViewPart = hdViewPart;
     }
 
     @Override
@@ -152,17 +150,14 @@ public class ProxyDialog extends TitleAreaDialog {
             @Override
             public void widgetSelected(final SelectionEvent e) {
                 CoreContext.getContext().putObject(CoreObjects.PROXY_ITEM, proxyItem);
-                ((HdViewPart) viewPart).fireProxyEnable(proxyItem.isProxy());
+                hdViewPart.fireProxyEnable(proxyItem.isProxy());
                 fireExecuteFolderItems();
             }
         });
     }
 
     private void fireExecuteFolderItems() {
-        final IViewSite site = ProxyDialog.this.viewPart.getViewSite();
-        final HdViewPart part = (HdViewPart) site.getPart();
-        final FolderView folderView = part.getFolderView();
-        folderView.enableProxy();
+        hdViewPart.getFolderView().enableProxy();
     }
 
 }

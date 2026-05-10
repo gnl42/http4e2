@@ -5,17 +5,21 @@ import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
+
+import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
 
 public class ImportMenuAction extends Action implements IMenuCreator {
 
-    private final ViewPart view;
+    private final Shell shell;
+    private final HdViewPart view;
     private Menu menu;
     private Action http4eAction;
     private Action liveHeadersAction;
     private Action packetAction;
 
-    public ImportMenuAction(final ViewPart view) {
+    public ImportMenuAction(final Shell shell, final HdViewPart view) {
+        this.shell = shell;
         this.view = view;
         menu = null;
         setToolTipText("Import HTTP packets");
@@ -55,21 +59,21 @@ public class ImportMenuAction extends Action implements IMenuCreator {
 
     private Action getLiveHeadersAction() {
         if (liveHeadersAction == null) {
-            liveHeadersAction = new ImportLiveHttpHeadersAction(view);
+            liveHeadersAction = new ImportLiveHttpHeadersAction(shell, view);
         }
         return liveHeadersAction;
     }
 
     private Action getPacketAction() {
         if (packetAction == null) {
-            packetAction = new ImportPacketAction(view);
+            packetAction = new ImportPacketAction(shell, view);
         }
         return packetAction;
     }
 
     private Action getHTTP4eAction() {
         if (http4eAction == null) {
-            http4eAction = new ImportHTTP4eAction(view);
+            http4eAction = new ImportHTTP4eAction(shell, view);
         }
         return http4eAction;
     }

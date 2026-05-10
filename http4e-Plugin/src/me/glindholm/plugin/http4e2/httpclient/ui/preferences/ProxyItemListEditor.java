@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.ui.preferences;
 
-import org.apache.commons.lang3.text.StrTokenizer;
+import org.apache.commons.text.StringTokenizer;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.ListEditor;
@@ -96,7 +96,7 @@ class ProxyItemListEditor extends ListEditor {
      */
     @Override
     protected String[] parseString(final String stringList) {
-        final StrTokenizer tokenizer = new StrTokenizer(stringList, DELIMITER);
+        final StringTokenizer tokenizer = new StringTokenizer(stringList, DELIMITER);
         return tokenizer.getTokenArray();
     }
 

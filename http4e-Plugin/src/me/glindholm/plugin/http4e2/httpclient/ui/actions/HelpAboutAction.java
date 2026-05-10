@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,30 +16,27 @@
 package me.glindholm.plugin.http4e2.httpclient.ui.actions;
 
 import org.eclipse.jface.action.Action;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
 
 /**
  * Action used for the open historical input again in DependenciesView
- * 
+ *
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
 public class HelpAboutAction extends Action {
 
-    private final ViewPart view;
+    private final Shell shell;
 
-    public HelpAboutAction(final ViewPart view, final String title) {
-        this.view = view;
+    public HelpAboutAction(final Shell shell, final String title) {
+        this.shell = shell;
         setText(title);
-        // setImageDescriptor(ImageDescriptor.createFromImage(ResourceUtils.getImage(CoreImages.HELP)));
-        // setDisabledImageDescriptor(PDEPluginImages.DESC_PLUGIN_OBJ);
-
         setDescription(title);
         setToolTipText(title);
     }
 
     @Override
     public void run() {
-        final AboutDialog dialog = new AboutDialog(view.getViewSite().getShell());
+        final AboutDialog dialog = new AboutDialog(shell);
         dialog.open();
     }
 

@@ -14,7 +14,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -29,11 +28,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.StringTokenizer;
 
-import org.eclipse.core.runtime.Plugin;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
-import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
 import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.FolderModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
@@ -69,13 +67,10 @@ public class BaseUtils {
 
     public static void writeToPrefs(final String prefName, final byte[] prefData) {
         try {
-            final Plugin pl = (Plugin) CoreContext.getContext().getObject("p");
-            final Preferences prefs = pl.getPluginPreferences();
-
+            final IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(CoreConstants.PLUGIN_UI);
             final String str64 = new String(Base64.getEncoder().encode(prefData), "UTF8");
-            prefs.setValue(prefName, str64);
-            pl.savePluginPreferences();
-
+            prefs.put(prefName, str64);
+            prefs.flush();
         } catch (final Exception ignore) {
             ExceptionHandler.handle(ignore);
         }
@@ -83,12 +78,12 @@ public class BaseUtils {
 
     public static byte[] readFromPrefs(final String prefName) {
         try {
-            final Plugin pl = (Plugin) CoreContext.getContext().getObject("p");
-            final Preferences prefs = pl.getPluginPreferences();
-            final String str64 = prefs.getString(prefName);
-            final byte[] data = Base64.getDecoder().decode(str64.getBytes("UTF8"));
-            return data;
-
+            final IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(CoreConstants.PLUGIN_UI);
+            final String str64 = prefs.get(prefName, "");
+            if (str64.isEmpty()) {
+                return null;
+            }
+            return Base64.getDecoder().decode(str64.getBytes("UTF8"));
         } catch (final Exception ignore) {
             ExceptionHandler.handle(ignore);
         }
@@ -143,42 +138,30 @@ public class BaseUtils {
         return str != null ? str : val;
     }
 
+    private static InputStream openPropertyStream(final String propResource) throws IOException {
+        final File file = new File(propResource);
+        if (file.exists()) {
+            return new FileInputStream(file);
+        }
+        return Thread.currentThread().getContextClassLoader().getResourceAsStream(propResource);
+    }
+
     public static Properties loadProperties(final String propResource) {
-        Properties properties = null;
         if (propResource == null) {
             throw new IllegalArgumentException("propertiesResource not provided !");
         }
-
-        InputStream is = null;
-        try {
-            try {
-                is = new FileInputStream(propResource);
-
-            } catch (final FileNotFoundException e) {
-                is = Thread.currentThread().getContextClassLoader().getResourceAsStream(propResource);
+        try (final InputStream is = openPropertyStream(propResource)) {
+            if (is == null || is.available() < 1) {
+                throw new RuntimeException("Properties '" + propResource + "' not initilized. Skipping..");
             }
-
-            try {
-                if (is == null || is.available() < 1) {
-                    throw new RuntimeException("Properties '" + propResource + "' not initilized. Skipping..");
-                }
-                properties = new Properties();
-                final InputStreamReader inR = new InputStreamReader(is, "UTF8");
-                final BufferedReader bufR = new BufferedReader(inR);
+            final Properties properties = new Properties();
+            try (final BufferedReader bufR = new BufferedReader(new InputStreamReader(is, "UTF8"))) {
                 properties.load(bufR);
-
-            } catch (final IOException ioe) {
-                throw new RuntimeException(ioe);
             }
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (final IOException e) {
-                }
-            }
+            return properties;
+        } catch (final IOException ioe) {
+            throw new RuntimeException(ioe);
         }
-        return properties;
     }
 
     public static List<String> loadList(final InputStream is) {
@@ -250,6 +233,18 @@ public class BaseUtils {
         final HttpBean bean = Utils.modelToHttpBean(iModel);
         bean.filterJava();
         new ExportTemplateTransformer("/resources/java.vm", bean).doWrite(writer);
+    }
+
+    public static void writeJavaHttpClient5(final ItemModel iModel, final Writer writer) throws FileNotFoundException {
+        final HttpBean bean = Utils.modelToHttpBean(iModel);
+        bean.filterJava();
+        new ExportTemplateTransformer("/resources/java5.vm", bean).doWrite(writer);
+    }
+
+    public static void writeJavaHttp21(final ItemModel iModel, final Writer writer) throws FileNotFoundException {
+        final HttpBean bean = Utils.modelToHttpBean(iModel);
+        bean.filterJava();
+        new ExportTemplateTransformer("/resources/java21http.vm", bean).doWrite(writer);
     }
 
     public static void writeJsPrototype(final ItemModel iModel, final Writer writer) throws FileNotFoundException {

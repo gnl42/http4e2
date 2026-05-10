@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -157,7 +157,8 @@ public class HConfiguration extends SourceViewerConfiguration {
     private RuleBasedScanner getValueScanner() {
         if (valueScanner == null) {
             valueScanner = new HValueScanner();
-            valueScanner.setDefaultReturnToken(new Token(new TextAttribute(ResourceUtils.getColor(Styles.WHITE_RGB_TEXT))));
+            // null foreground → inherit widget foreground (theme-aware)
+            valueScanner.setDefaultReturnToken(new Token(new TextAttribute(null)));
         }
         return valueScanner;
     }
@@ -165,7 +166,8 @@ public class HConfiguration extends SourceViewerConfiguration {
     private RuleBasedScanner getDefaultScanner() {
         if (defaultScanner == null) {
             defaultScanner = new HDefaultScanner();
-            defaultScanner.setDefaultReturnToken(new Token(new TextAttribute(ResourceUtils.getColor(Styles.WHITE_RGB_TEXT))));
+            // null foreground → inherit widget foreground (theme-aware)
+            defaultScanner.setDefaultReturnToken(new Token(new TextAttribute(null)));
         }
         return defaultScanner;
     }

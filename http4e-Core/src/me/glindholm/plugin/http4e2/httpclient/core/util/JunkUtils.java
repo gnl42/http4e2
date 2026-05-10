@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,27 +15,38 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.core.util;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Optional;
 
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.eclipse.swt.custom.StyledText;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.xml.sax.ErrorHandler;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.XMLReader;
 
 import me.glindholm.plugin.http4e2.crypt.HexUtils;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
-import me.glindholm.plugin.http4e2.httpclient.core.client.misc.ApacheHttpListener;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.AssistConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.misc.CoreException;
-import nu.xom.Builder;
-import nu.xom.Serializer;
 
 /**
  * A class with misc utils.
@@ -46,20 +57,8 @@ public class JunkUtils {
 
     private static String XML_LINE = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>";
 
-    private final static ApacheHttpListener httpListener = new ApacheHttpListener() {
-        @Override
-        public void write(final byte[] data) {
-            // blank
-        }
-
-        @Override
-        public void close() {
-            // blank
-        }
-    };
-
-    private final static ResponseReader responseReader = httpMethod -> {
-//          HttpUtils.dumpResponse(httpMethod, System.out);
+    private final static ResponseReader responseReader = response -> {
+        // no-op
     };
 
     public static boolean isXwwwFormType(final ItemModel model) {
@@ -92,13 +91,15 @@ public class JunkUtils {
         return false;
     }
 
-    public static void hexText(final StyledText styledText, final String text) {
-        try {
-            styledText.setText(HexUtils.toHex(text.getBytes(CoreConstants.UTF8)));
-        } catch (final IOException e) {
-            throw CoreException.getInstance(CoreException.UNSUPPORTED_ENCODING, e);
-        }
-    }
+	public static void hexText(final StyledText styledText, final String text) {
+		if (!text.isEmpty()) {
+			try {
+				styledText.setText(HexUtils.toHex(text.getBytes(CoreConstants.UTF8)));
+			} catch (final IOException e) {
+				throw CoreException.getInstance(CoreException.UNSUPPORTED_ENCODING, e);
+			}
+		}
+	}
 
     public static String prettyText(String text) {
 
@@ -131,9 +132,16 @@ public class JunkUtils {
             if (isGWTok || isGWTerr) {
                 txt = txt.substring(4);
             }
-            return toJSON(txt, isGWTok, isGWTerr);
+            final String res = prettyJson(txt);
+            if (isGWTok) {
+                return "//OK" + res;
+            } else if (isGWTerr) {
+                return "//EX" + res;
+            } else {
+                return res;
+            }
 
-        } catch (final JSONException e) {
+        } catch (final Exception e) {
 //         ExceptionHandler.handle(e);
             if (bypassXML) {
                 return txt;
@@ -141,56 +149,69 @@ public class JunkUtils {
                 final String line = txt.startsWith("<?xml") ? null : XML_LINE;
                 return prettyXml(txt, line);
             }
-
-        } catch (final Exception e) {
-            ExceptionHandler.handle(e);
-            if (bypassXML) {
-                return txt;
-            } else {
-                final String line = txt.startsWith("<?xml") ? null : XML_LINE;
-                return prettyXml(txt, line);
-            }
         }
 
     }
 
-    private static String toJSON(final String txt, final boolean isGWTok, final boolean isGWTerr) throws JSONException {
-
-        String res = null;
-
-        if (txt.startsWith("[")) {
-            final JSONArray arr = new JSONArray(txt);
-            res = arr.toString(4);
-        } else {
-            final JSONObject obj = new JSONObject(txt);
-            res = obj.toString(4);
+    private static String prettyJson(final String txt) {
+        final StringBuilder sb = new StringBuilder();
+        int indent = 0;
+        boolean inString = false;
+        for (int i = 0; i < txt.length(); i++) {
+            final char c = txt.charAt(i);
+            if (c == '"' && (i == 0 || txt.charAt(i - 1) != '\\')) {
+                inString = !inString;
+                sb.append(c);
+            } else if (inString) {
+                sb.append(c);
+            } else {
+                switch (c) {
+                case '{': case '[':
+                    sb.append(c).append('\n').append("    ".repeat(++indent));
+                    break;
+                case '}': case ']':
+                    sb.append('\n').append("    ".repeat(--indent)).append(c);
+                    break;
+                case ',':
+                    sb.append(c).append('\n').append("    ".repeat(indent));
+                    break;
+                case ':':
+                    sb.append(": ");
+                    break;
+                default:
+                    if (!Character.isWhitespace(c)) {
+                        sb.append(c);
+                    }
+                    break;
+                }
+            }
         }
-        if (isGWTok) {
-            return "//OK" + res;
-        } else if (isGWTerr) {
-            return "//EX" + res;
-        } else {
-            return res;
-        }
+        return sb.toString();
     }
 
     public static String prettyXml(final String xml, final String firstLine) {
         try {
+            final String input = firstLine != null ? firstLine + xml : xml;
 
-            final ByteArrayOutputStream out = new ByteArrayOutputStream();
-            final Serializer serializer = new Serializer(out);
-            serializer.setIndent(2);
-            if (firstLine != null) {
-                serializer.write(new Builder().build(firstLine + xml, ""));
-            } else {
-                serializer.write(new Builder().build(xml, ""));
-            }
-            final String ret = out.toString("UTF-8");
-            if (firstLine != null) {
-                return ret.substring(firstLine.length()).trim();
-            } else {
-                return ret;
-            }
+            // Use SAXSource with a silent ErrorHandler so the SAX parser never
+            // writes "[Fatal Error]" lines directly to System.err
+            final SAXParserFactory spf = SAXParserFactory.newInstance();
+            spf.setNamespaceAware(true);
+            final SAXParser saxParser = spf.newSAXParser();
+            final XMLReader xmlReader = saxParser.getXMLReader();
+            xmlReader.setErrorHandler(new ErrorHandler() {
+                @Override public void warning(SAXParseException e) {}
+                @Override public void error(SAXParseException e) throws SAXParseException { throw e; }
+                @Override public void fatalError(SAXParseException e) throws SAXParseException { throw e; }
+            });
+
+            final Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, firstLine == null ? "no" : "yes");
+            final StringWriter writer = new StringWriter();
+            transformer.transform(new SAXSource(xmlReader, new InputSource(new StringReader(input))), new StreamResult(writer));
+            return writer.toString().trim();
         } catch (final Exception e) {
 //         ExceptionHandler.handle(e);
             return xml;
@@ -198,25 +219,24 @@ public class JunkUtils {
     }
 
     public static String getHdToken(final String url, final String md) {
-        final HttpClient client = new HttpClient();
-        final PostMethod post = new PostMethod(url);
-        post.setRequestHeader("content-type", "application/x-www-form-urlencoded");
-        post.setParameter("v", md);
-
-        post.setApacheHttpListener(httpListener);
+        final HttpClient client = HttpClient.newHttpClient();
         try {
-            HttpUtils.execute(client, post, responseReader);
-            final Header header = post.getResponseHeader("hd-token");
-            if (header != null) {
-//            System.out.println("hd-token:" + header.getValue() + "'");
-                return header.getValue();
+            final String formBody = "v=" + java.net.URLEncoder.encode(md, CoreConstants.UTF8);
+            final HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(url))
+                    .header("content-type", "application/x-www-form-urlencoded")
+                    .POST(BodyPublishers.ofString(formBody))
+                    .build();
+            final HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+            try (final InputStream responseBody = response.body()) {
+                responseReader.read(response);
+                final Optional<String> header = response.headers().firstValue("hd-token");
+                if (header.isPresent()) {
+                    return header.get();
+                }
             }
         } catch (final Exception ignore) {
             ExceptionHandler.handle(ignore);
-        } finally {
-            if (post != null) {
-                post.releaseConnection();
-            }
         }
         return null;
     }

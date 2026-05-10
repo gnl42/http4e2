@@ -33,11 +33,11 @@ public class HttpToJmxTransformer {
 
     public void doWrite(final Writer writer) {
         try (InputStreamReader reader = new InputStreamReader(getClass().getClassLoader().getResourceAsStream(templateFile), StandardCharsets.UTF_8)) {
-            RuntimeInstance runtimeInstance = new RuntimeInstance();
+            final RuntimeInstance runtimeInstance = new RuntimeInstance();
             runtimeInstance.init();
 
-            Template template = new Template();
-            SimpleNode simpleNode = runtimeInstance.parse(reader, template);
+            final Template template = new Template();
+            final SimpleNode simpleNode = runtimeInstance.parse(reader, template);
 
             simpleNode.init(new InternalContextAdapterImpl(new VelocityContext()), runtimeInstance);
             template.setData(simpleNode);

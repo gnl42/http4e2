@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- You can run JMeter JMX files using JMETER_HOME/bin/jmeter-t.cmd.
- 
- This script was generated with HTTP4e2 - the Eclipse REST client, http://www.nextinterfaces.com/http4e/
+ You can run JMeter JMX files using jmeter (https://jmeter.apache.org/download_jmeter.cgi).
+
+ This script was generated with HTTP4e2 - the Eclipse REST client, https://www.nextinterfaces.com/http4e/
 -->
-<jmeterTestPlan version="1.2" properties="2.1">
+<jmeterTestPlan version="1.2" properties="5.0">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="HTTP4e2 Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -23,19 +23,17 @@
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">1</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
-        <longProp name="ThreadGroup.start_time">1238620580000</longProp>
-        <longProp name="ThreadGroup.end_time">1238620580000</longProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
-      <hashTree> 
+      <hashTree>
 
 
-#foreach( $http in $httpbeans ) 
+#foreach( $http in $httpbeans )
 ##############
-        <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="$http.name" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="$http.name" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" enabled="true">
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
@@ -55,25 +53,21 @@
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-          <stringProp name="HTTPSampler.FILE_NAME"></stringProp>
-          <stringProp name="HTTPSampler.FILE_FIELD"></stringProp>
-          <stringProp name="HTTPSampler.mimetype"></stringProp>
-          <stringProp name="HTTPSampler.monitor">false</stringProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-        </HTTPSampler>
+        </HTTPSamplerProxy>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Browser-derived headers" enabled="true">
             <collectionProp name="HeaderManager.headers">
-            
-			###########			
+
+			###########
 			#foreach( $hKey in $http.headers.keySet() )
               <elementProp name="$hKey" elementType="Header">
                 <stringProp name="Header.name">$hKey</stringProp>
                 <stringProp name="Header.value">$http.headers.get($hKey)</stringProp>
               </elementProp>
 			#end
-			##################  
+			##################
 			##################  <elementProp name="Content-Type" elementType="Header">
             ##################    <stringProp name="Header.name">Content-Type</stringProp>
             ##################    <stringProp name="Header.value">text/x-gwt-rpc; charset=utf-8</stringProp>
@@ -93,11 +87,11 @@
             <stringProp name="Assertion.assume_success">false</stringProp>
             <intProp name="Assertion.test_type">2</intProp>
             <stringProp name="TestPlan.comments">Use Assertion to validate the response. E.g.
- [x] Text Response 
- [x] Contains 
- &lt;response&gt;success&lt;/response&gt; 
- 
- [x] Response Code 
+ [x] Text Response
+ [x] Contains
+ &lt;response&gt;success&lt;/response&gt;
+
+ [x] Response Code
  [x] Not
  [x] 500</stringProp>
           </ResponseAssertion>
@@ -105,8 +99,8 @@
         </hashTree>
 ##############
 #end
-		
-		
+
+
         <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
           <boolProp name="ResultCollector.error_logging">false</boolProp>
           <objProp>
@@ -126,7 +120,7 @@
               <subresults>true</subresults>
               <responseData>false</responseData>
               <samplerData>false</samplerData>
-              <xml>true</xml>
+              <xml>false</xml>
               <fieldNames>false</fieldNames>
               <responseHeaders>false</responseHeaders>
               <requestHeaders>false</requestHeaders>
@@ -158,7 +152,7 @@
               <subresults>true</subresults>
               <responseData>false</responseData>
               <samplerData>false</samplerData>
-              <xml>true</xml>
+              <xml>false</xml>
               <fieldNames>false</fieldNames>
               <responseHeaders>false</responseHeaders>
               <requestHeaders>false</requestHeaders>
@@ -190,7 +184,7 @@
               <subresults>true</subresults>
               <responseData>false</responseData>
               <samplerData>false</samplerData>
-              <xml>true</xml>
+              <xml>false</xml>
               <fieldNames>false</fieldNames>
               <responseHeaders>false</responseHeaders>
               <requestHeaders>false</requestHeaders>
@@ -222,7 +216,7 @@
               <subresults>true</subresults>
               <responseData>false</responseData>
               <samplerData>false</samplerData>
-              <xml>true</xml>
+              <xml>false</xml>
               <fieldNames>false</fieldNames>
               <responseHeaders>false</responseHeaders>
               <requestHeaders>false</requestHeaders>
@@ -254,7 +248,7 @@
               <subresults>true</subresults>
               <responseData>false</responseData>
               <samplerData>false</samplerData>
-              <xml>true</xml>
+              <xml>false</xml>
               <fieldNames>false</fieldNames>
               <responseHeaders>false</responseHeaders>
               <requestHeaders>false</requestHeaders>
@@ -287,13 +281,13 @@ JSESSIONID=zzzzzzzzzz,userId=3
  HTTP Header Manager: Name=Cookie, Value=${varA}
                       Name=SomeOtherHeaderOrParameter, Value=${varB}
 
- JMeter will iterate over the CSV list and will extract varA,varB entries as bellow: 
+ JMeter will iterate over the CSV list and will extract varA,varB entries as bellow:
  varA="JSESSIONID=xxxxxxxxxx", varB="userId=1"
  varA="JSESSIONID=yyyyyyyyyy", varB="userId=2"
  varA="JSESSIONID=zzzzzzzzzz", varB="userId=3"
 
- Those variables will get injected at run time into defined ${varA} and ${varB} entries. 
- When running more than one thread, each JMeter thread will read a separate line from csv, 
+ Those variables will get injected at run time into defined ${varA} and ${varB} entries.
+ When running more than one thread, each JMeter thread will read a separate line from csv,
  thus JMeter thread1 will use varA="JSESSIONID=xxxxxxxxxx", varB="userId=1", thread2 the next line etc.</stringProp>
         </CSVDataSet>
         <hashTree/>

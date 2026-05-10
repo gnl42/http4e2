@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,8 @@ import java.io.StringWriter;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
+
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
@@ -34,10 +35,12 @@ import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
 
 public class ExportCsAction extends Action {
 
-    private final ViewPart view;
+    private final Shell shell;
+    private final HdViewPart view;
     private Menu fMenu;
 
-    public ExportCsAction(final ViewPart view) {
+    public ExportCsAction(final Shell shell, final HdViewPart view) {
+        this.shell = shell;
         this.view = view;
         fMenu = null;
         setToolTipText("Export call as C# script");
@@ -61,14 +64,14 @@ public class ExportCsAction extends Action {
     @Override
     public void run() {
         try {
-            final FolderView folderView = ((HdViewPart) view).getFolderView();
+            final FolderView folderView = view.getFolderView();
             final ItemModel iModel = folderView.getModel().getItemModel(folderView.getSelectionItemHash());
             iModel.fireExecute(new ModelEvent(ModelEvent.EXPORT, iModel));
 
             final StringWriter writer = new StringWriter();
             BaseUtils.writeCsharp(iModel, writer);
 
-            final ExportDialog dialog = new ExportDialog(view, "C# HTTP client", "Your call exported as a C# HTTP client code.", writer.toString());
+            final ExportDialog dialog = new ExportDialog(shell, view.getFolderView(), "C# HTTP client", "Your call exported as a C# HTTP client code.", writer.toString());
             dialog.open();
         } catch (final Exception e) {
             ExceptionHandler.handle(e);

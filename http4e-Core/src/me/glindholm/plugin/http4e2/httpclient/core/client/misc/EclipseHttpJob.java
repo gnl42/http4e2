@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,7 +20,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -30,13 +30,11 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.core.client.misc;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.MultiStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.eclipse.ui.progress.IProgressConstants;
 
 /**
  * @author Atanas Roussev (https://nextinterfaces.com)
@@ -72,11 +70,8 @@ public class EclipseHttpJob extends Job {
 //      this.reschedule = reschedule;
 //      this.rescheduleWait = rescheduleWait;
         if (lock) {
-            setRule(ResourcesPlugin.getWorkspace().getRoot());
+            // workspace lock scheduling rule removed (E4 — no ResourcesPlugin dependency)
         }
-
-        setProperty(IProgressConstants.KEEP_PROPERTY, Boolean.valueOf("true"));
-        setProperty(IProgressConstants.KEEPONE_PROPERTY, Boolean.valueOf("true"));
         schedule(10);
     }
 

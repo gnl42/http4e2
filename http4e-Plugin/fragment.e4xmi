@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<fragment:ModelFragments
+    xmi:version="2.0"
+    xmlns:xmi="https://www.omg.org/XMI"
+    xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+    xmlns:basic="https://www.eclipse.org/ui/2010/UIModel/application/ui/basic"
+    xmlns:fragment="https://www.eclipse.org/ui/2010/UIModel/application/descriptor/basic"
+    xmlns:menu="https://www.eclipse.org/ui/2010/UIModel/application/ui/menu">
+
+  <!--
+    PartDescriptor that EPartService.showPart() uses to instantiate HdViewPart
+    via E4 DI. Without this, the <e4view> registration in plugin.xml only adds
+    the view to the Show-Views dialog but cannot actually create the part.
+  -->
+  <fragments
+      xsi:type="fragment:StringModelFragment"
+      xmi:id="_http4e2_partdesc_frag"
+      featurename="descriptors"
+      parentElementId="xpath:/">
+    <elements
+        xsi:type="basic:PartDescriptor"
+        xmi:id="_http4e2_partdesc"
+        elementId="me.glindholm.plugin.http4e2.ui.HdViewPart"
+        contributionURI="bundleclass://me.glindholm.plugin.http4e2.ui/me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart"
+        label="HTTP4e2"
+        iconURI="platform:/plugin/me.glindholm.plugin.http4e2.ui/icons/logo.png"
+        allowMultiple="false"
+        closeable="true">
+      <toolbar xsi:type="menu:ToolBar" xmi:id="_http4e2_partdesc_toolbar"/>
+    </elements>
+  </fragments>
+
+</fragment:ModelFragments>

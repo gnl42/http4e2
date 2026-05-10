@@ -1,5 +1,6 @@
 package me.glindholm.plugin.http4e2.httpclient.core.client.view;
 
+import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.swt.SWT;
@@ -17,7 +18,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
@@ -33,7 +33,6 @@ import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.DocumentUt
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.HConfiguration;
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.HContentAssistProcessor;
 import me.glindholm.plugin.http4e2.httpclient.core.client.view.assist.ModelTrackerListener;
-import me.glindholm.plugin.http4e2.httpclient.core.misc.Styles;
 import me.glindholm.plugin.http4e2.httpclient.core.util.BaseUtils;
 import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
 
@@ -54,16 +53,13 @@ public abstract class AbstractView {
         styledText = buildEditorText(vForm);
         vForm.setContent(styledText);
 
-        final Display display = parent.getDisplay();
-        final Color fg = ResourceUtils.getColor(Styles.BLUE_RGB_TEXT);
-        final Color bg = ResourceUtils.getColor(Styles.BLACK_RGB_TEXT);
-        final Color a = parent.getDisplay().getSystemColor(SWT.FOREGROUND);
-        final Color b = parent.getForeground();
-//        fg = b;
-//        styledText.setForeground(fg);
-        final Color systemColor = display.getSystemColor(SWT.COLOR_YELLOW);
-        styledText.setForeground(systemColor);
-        styledText.setBackground(bg);
+        // Apply e4 CSS class so the stylesheet controls colours/fonts.
+        // Also set system editor colours as a baseline so text is readable
+        // even before the CSS engine has had a chance to apply the stylesheet.
+        styledText.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-editor");
+        styledText.setForeground(parent.getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
+        styledText.setBackground(parent.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
+        titleLabel.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-title-label");
 
         final int eventResized;
         final int eventFocusGained;
@@ -238,39 +234,28 @@ public abstract class AbstractView {
     }
 
     void setEditable(final boolean editable, final boolean isXwwwForm, final boolean isPost) {
-        Color fg = ResourceUtils.getColor(Styles.GRAY_RGB_TEXT);
-        Color bg = ResourceUtils.getColor(Styles.BACKGROUND_DISABLED);
-        fg = bg = null;
-
         if (editable) {
-            // bodyText.setFont(ResourceUtils.getFont(Styles.FONT_COURIER));
-            styledText.setForeground(fg);
-            styledText.setBackground(bg);
+            styledText.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-editor");
+            styledText.setForeground(styledText.getDisplay().getSystemColor(SWT.COLOR_LIST_FOREGROUND));
+            styledText.setBackground(styledText.getDisplay().getSystemColor(SWT.COLOR_LIST_BACKGROUND));
             styledText.setEditable(true);
-            // attachManager.setEnabled(true);
             if (isXwwwForm && isPost) {
                 attachManager.setEnabled(false);
             } else {
                 attachManager.setEnabled(true);
             }
-            // if(isXwwForm && isPost){
-            // attachManager.setEnabled(false);
-            // } else {
-            // attachManager.setEnabled(true);
-            // }
-
         } else {
-            // bodyText.setFont(ResourceUtils.getFont(Styles.FONT_COURIER));
-            styledText.setForeground(fg);
-            styledText.setBackground(ResourceUtils.getColor(Styles.GREY_DISABLED));
+            styledText.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-editor-disabled");
+            styledText.setForeground(styledText.getDisplay().getSystemColor(SWT.COLOR_WIDGET_FOREGROUND));
+            styledText.setBackground(styledText.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
             styledText.setEditable(false);
             attachManager.setEnabled(false);
         }
     }
 
     void setForeground(final RGB style) {
-        final Color fg = ResourceUtils.getColor(Styles.BLACK_RGB_TEXT);
-        final Color bg = ResourceUtils.getColor(Styles.BACKGROUND_DISABLED);
+//        final Color fg = ResourceUtils.getColor(Styles.BLACK_RGB_TEXT);
+//        final Color bg = ResourceUtils.getColor(Styles.BACKGROUND_DISABLED);
 
 //        styledText.setForeground(fg);
     }

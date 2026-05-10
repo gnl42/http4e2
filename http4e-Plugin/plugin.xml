@@ -1,57 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.2"?>
+
 <plugin>
-   
+
+   <!--
+     Contribute the E4 PartDescriptor via fragment.e4xmi.
+     The <e4view> below registers it in the "Show Views" dialog (IViewRegistry),
+     but the PartDescriptor is what EPartService.showPart() uses to actually
+     instantiate HdViewPart via E4 DI.  Both are required.
+   -->
    <extension
-         point="org.eclipse.ui.views">  
+         id="me.glindholm.plugin.http4e2.ui.model"
+         point="org.eclipse.e4.workbench.model">
+      <fragment
+            uri="fragment.e4xmi"
+            apply="always">
+      </fragment>
+   </extension>
+
+   <!--
+     Register the pure-E4 view in the "Show Views" dialog (Window > Show View > Other...).
+   -->
+   <extension point="org.eclipse.ui.views">
       <category
-            name="HTTP"
-            id="me.glindholm.plugin.http4e2.ui">
+            id="me.glindholm.plugin.http4e2.ui.category"
+            name="HTTP4e2">
       </category>
-      <view
-            name="HTTP4e2 Client"
-            icon="icons/logo.png"
-            category="me.glindholm.plugin.http4e2.ui"
+      <e4view
+            category="me.glindholm.plugin.http4e2.ui.category"
             class="me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart"
             id="me.glindholm.plugin.http4e2.ui.HdViewPart"
-            >
-      </view>
+            name="HTTP4e2"
+            icon="icons/logo.png"
+            restorable="true">
+      </e4view>
    </extension>
-	<!--
-   <extension
-         point="org.eclipse.ui.preferencePages">
-      <page
-            category="HTTP"
-            class="me.glindholm.plugin.http4e2.httpclient.ui.preferences.HTTPClientPreferencePage"
-            id="me.glindholm.plugin.http4e2.ui.preferences.HTTPClient"
-            name="HTTP4E">
-      </page>
-   </extension>
-   <extension
-         point="org.eclipse.core.runtime.preferences">
-      <initializer
-            class="me.glindholm.plugin.http4e2.httpclient.ui.preferences.PreferenceInitializer">
-      </initializer>
-   </extension>
-	-->
-	
+
    <!--
-   <extension
-         point="org.eclipse.ui.viewActions">
-      <viewContribution
-            targetID="me.glindholm.plugin.http4e2.ui.HdViewPart"
-            id="me.glindholm.plugin.http4e2.ui.HdViewPart.pushbutton">
-         <action
-               class="me.glindholm.plugin.http4e2.httpclient.ui.actions.HdActionDelegate"
-               enablesFor="*"
-               icon="icons/tab-open.png"
-               id="add.tab"
-               label="Add Tab"
-               toolbarPath="push_group"
-               tooltip="Add new tab">
-         </action>
-      </viewContribution>
-   </extension>   
+     E3 command + handler for the "Window > Show View" submenu entry.
    -->
-   
+   <extension point="org.eclipse.ui.commands">
+      <command
+            id="me.glindholm.plugin.http4e2.ui.command.showView"
+            name="HTTP4e2 View"
+            description="Open the HTTP4e2 request tool view">
+      </command>
+   </extension>
+
+   <extension point="org.eclipse.ui.handlers">
+      <handler
+            commandId="me.glindholm.plugin.http4e2.ui.command.showView"
+            class="me.glindholm.plugin.http4e2.httpclient.ui.ShowHttp4e2ViewHandler">
+      </handler>
+   </extension>
+
+   <extension point="org.eclipse.ui.menus">
+      <menuContribution
+            locationURI="menu:org.eclipse.ui.window.showView?after=additions">
+         <command
+               commandId="me.glindholm.plugin.http4e2.ui.command.showView"
+               label="HTTP4e2 View"
+               icon="icons/logo.png"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+
+   <!-- e4 CSS theming -->
+   <extension
+         point="org.eclipse.e4.ui.css.swt.theme">
+       <stylesheet
+            uri="css/http4e-default.css">
+         <themeid
+               refid="org.eclipse.e4.ui.css.theme.e4_default">
+         </themeid>
+      </stylesheet>
+      <stylesheet
+            uri="css/http4e-dark.css">
+         <themeid
+               refid="org.eclipse.e4.ui.css.theme.e4_dark">
+         </themeid>
+      </stylesheet>
+   </extension>
 </plugin>

@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,19 +20,22 @@ import org.eclipse.jface.action.ActionContributionItem;
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
 
 public class HelpDropDownAction extends Action implements IMenuCreator {
 
     public static final int RESULTS_IN_DROP_DOWN = 10;
 
-    private final ViewPart view;
-    private Menu fMenu;
     private HelpAboutAction aboutAction;
     private ConfigAction configAction;
 
-    public HelpDropDownAction(final ViewPart view) {
-        this.view = view;
+
+
+    private final Shell shell;
+    private Menu fMenu;
+
+    public HelpDropDownAction(final Shell shell) {
+        this.shell = shell;
         fMenu = null;
         setToolTipText("About, License");
         setMenuCreator(this);
@@ -74,14 +77,14 @@ public class HelpDropDownAction extends Action implements IMenuCreator {
 
     private HelpAboutAction getAboutAction() {
         if (aboutAction == null) {
-            aboutAction = new HelpAboutAction(view, "About");
+            aboutAction = new HelpAboutAction(shell, "About");
         }
         return aboutAction;
     }
 
     private ConfigAction getConfigAction() {
         if (configAction == null) {
-            configAction = new ConfigAction(view, "Preferences");
+            configAction = new ConfigAction(shell, "Preferences");
         }
         return configAction;
     }

@@ -1,8 +1,9 @@
 package me.glindholm.plugin.http4e2.crypt;
 
 public class Errors extends Exception {
+	private static final long serialVersionUID = 1L;
 
-    public final static int SUCCESS = 0, KEY_TABLE_READ = 1, TOKEN_READ = 2, EMAIL_EMPTY = 3, UNSUPPORTED_ENCODING = 4, MAJOR_MINOR_NOT_SUPPORTED = 5,
+	public final static int SUCCESS = 0, KEY_TABLE_READ = 1, TOKEN_READ = 2, EMAIL_EMPTY = 3, UNSUPPORTED_ENCODING = 4, MAJOR_MINOR_NOT_SUPPORTED = 5,
             EMAIL_DOESNOT_MATCH = 6, UNKNOWN = 100;
 
     private int code = SUCCESS;

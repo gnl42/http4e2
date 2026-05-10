@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,10 +20,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.SashForm;
@@ -33,7 +32,6 @@ import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
@@ -53,7 +51,6 @@ import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreMessages;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreObjects;
 import me.glindholm.plugin.http4e2.httpclient.core.client.misc.BusinessJob;
-import me.glindholm.plugin.http4e2.httpclient.core.client.misc.EclipseHttpJob;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.AuthItem;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ModelEvent;
@@ -70,10 +67,10 @@ import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
  *
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
-@SuppressWarnings({ "unchecked", "serial" })
 class ItemView implements ModelListener, Serializable {
+	private static final long serialVersionUID = 1L;
 
-    private static final RGB GRAY_RGB_TEXT = new RGB(180, 180, 180);
+	private static final RGB GRAY_RGB_TEXT = new RGB(180, 180, 180);
 
     private final ItemModel model;
     final CTabItem tabItem;
@@ -88,15 +85,12 @@ class ItemView implements ModelListener, Serializable {
     SashForm hSash;
     SashForm vSash;
 
-    private Animator loadingAnimator;
     private ToolItem stopItem;
     private Label lblAuth;
     private Label lblProxy;
 
     private final ItemState state = new ItemState();
     private final BusinessJob buzJob = new BusinessJob();
-
-    Job httpJob;
     private boolean maximizedHeaders = false;
     private boolean maximizedParams = false;
     private boolean maximizedBody = false;
@@ -146,21 +140,26 @@ class ItemView implements ModelListener, Serializable {
 
             requestView.setHttpText(CoreConstants.EMPTY_TEXT);
             responseView.setHttpText(CoreConstants.EMPTY_TEXT);
-            loadingAnimator.start();
             stopItem.setEnabled(true);
             state.setState(ItemState.HTTP_STARTED);
-            if (Utils.isIDE()) {
-                httpJob = new EclipseHttpJob(3000, true, true);
-            }
 
-            // starting asyncr thread
-            buzJob.execute(ItemView.this.model, vSash);
+            // Schedule through IWorkbenchSiteProgressService so Eclipse shows:
+            //  - a spinner on the view's tab
+            //  - an indeterminate progress bar + cancel button in the status bar
+            final org.eclipse.ui.progress.IWorkbenchSiteProgressService progressService =
+                    (org.eclipse.ui.progress.IWorkbenchSiteProgressService) CoreContext.getContext().getObject(CoreObjects.PROGRESS_SERVICE);
+            buzJob.prepare(ItemView.this.model); // sets model without scheduling
+            if (progressService != null) {
+                progressService.schedule(buzJob, 0, true); // true = show in status bar
+            } else {
+                buzJob.schedule();
+            }
 
             if (tabItem.isDisposed()) {
                 return;
             }
             if (!isPost()) {
-                final String textParams = ParseUtils.doUrlToParam2(urlCombo.getText(), ParseUtils.linesToMap2(paramView.getViewText()), true);
+				final String textParams = ParseUtils.doUrlToParam2(urlCombo.getText(), ParseUtils.linesToMap2(paramView.getViewText()), true);
                 paramView.setText(textParams);
             }
 
@@ -178,23 +177,16 @@ class ItemView implements ModelListener, Serializable {
         } else if (e.getType() == ModelEvent.REQUEST_STOPPED) {
             if (state.getState() != ItemState.HTTP_STOPPED) {
                 responseView.setHttpText(((ItemModel) e.getModel()).getResponse());
-                loadingAnimator.stop();
+                responseView.setCertificateInfo(((ItemModel) e.getModel()).getCertificateInfo(), ((ItemModel) e.getModel()).isSelfSignedCert());
                 stopItem.setEnabled(false);
                 state.setState(ItemState.HTTP_STOPPED);
-                if (httpJob != null) {
-                    httpJob.cancel();
-                }
             }
 
         } else if (e.getType() == ModelEvent.REQUEST_ABORTED) {
             if (state.getState() != ItemState.HTTP_ABORTED) {
                 responseView.setHttpText(CoreMessages.ABORTED);
-                loadingAnimator.stop();
                 stopItem.setEnabled(false);
                 state.setState(ItemState.HTTP_ABORTED);
-                if (httpJob != null) {
-                    httpJob.cancel();
-                }
             }
 
         } else if (e.getType() == ModelEvent.FOLDER_INIT) {
@@ -233,7 +225,7 @@ class ItemView implements ModelListener, Serializable {
 
         } else if (e.getType() == ModelEvent.URL_FOCUS_LOST) {
             if (!isPost()) {
-                final String textParams = ParseUtils.doUrlToParam2(urlCombo.getText(), ParseUtils.linesToMap2(paramView.getViewText()), true);
+				final String textParams = ParseUtils.doUrlToParam2(urlCombo.getText(), ParseUtils.linesToMap2(paramView.getViewText()), true);
                 paramView.setText(textParams);
             }
 
@@ -369,8 +361,7 @@ class ItemView implements ModelListener, Serializable {
             Utils.viewToModel(model, this);
 
         } else if (e.getType() == ModelEvent.AUTH) {
-            final CoreContext ctx = CoreContext.getContext();
-            final AuthItem au = (AuthItem) ctx.getObject(CoreObjects.AUTH_ITEM);
+            final AuthItem au = model.getAuth();
             if (au != null && (au.isBasic() || au.isDigest())) {
                 lblAuth.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.AUTH_ENABLED));
             } else {
@@ -379,11 +370,13 @@ class ItemView implements ModelListener, Serializable {
         } else if (e.getType() == ModelEvent.PROXY) {
             final CoreContext ctx = CoreContext.getContext();
             final ProxyItem pr = (ProxyItem) ctx.getObject(CoreObjects.PROXY_ITEM);
-            if (pr != null && pr.isProxy()) {
-                lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_ENABLED));
-            } else {
-                lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_TAB));
-            }
+			if (lblProxy != null) {
+				if (pr != null && pr.isProxy()) {
+					lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_ENABLED));
+				} else {
+					lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_TAB));
+				}
+	        }
         } else {
 //         System.err.println("Unknown event: " + e);
         }
@@ -433,11 +426,22 @@ class ItemView implements ModelListener, Serializable {
     private void initAuthProxyBtns(final Composite parent) {
         lblAuth = new Label(parent, SWT.NONE);
         lblAuth.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.AUTH_TAB));
-        lblAuth.setToolTipText("Using BASIC, DIGEST Authentication");
+        lblAuth.setToolTipText("Click to configure BASIC/DIGEST Authentication");
+        lblAuth.setCursor(parent.getDisplay().getSystemCursor(org.eclipse.swt.SWT.CURSOR_HAND));
+        lblAuth.addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
+            @Override
+            public void mouseUp(final org.eclipse.swt.events.MouseEvent e) {
+                @SuppressWarnings("unchecked")
+                final Consumer<ItemModel> opener = (Consumer<ItemModel>) CoreContext.getContext().getObject(CoreObjects.AUTH_DIALOG_OPENER);
+                if (opener != null) {
+                    opener.accept(model);
+                }
+            }
+        });
 
-        lblProxy = new Label(parent, SWT.NONE);
-        lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_TAB));
-        lblProxy.setToolTipText("Using Proxy Connection");
+//        lblProxy = new Label(parent, SWT.NONE);
+//        lblProxy.setImage(ResourceUtils.getImage(CoreConstants.PLUGIN_UI, CoreImages.PROXY_TAB));
+//        lblProxy.setToolTipText("Using Proxy Connection");
     }
 
     private Control buildBottomControl(final Composite parent) {
@@ -495,11 +499,6 @@ class ItemView implements ModelListener, Serializable {
                 buzJob.abort(true);
             }
         });
-
-        final Image backgroundImage = ResourceUtils.getImage(CoreConstants.PLUGIN_CORE, CoreImages.LOADING_OFF);
-        final CLabel ctrl = new CLabel(parent, SWT.NONE);
-        ctrl.setImage(backgroundImage);
-        loadingAnimator = new Animator(ctrl, backgroundImage);
 
         vForm.setTopCenter(bar);
     }
@@ -595,6 +594,7 @@ class ItemView implements ModelListener, Serializable {
 
     private void initHttpCombo(final Composite top) {
         httpCombo = new Combo(top, SWT.READ_ONLY);
+        httpCombo.setBackground(top.getDisplay().getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
         httpCombo.setItems(CoreConstants.HTTP11_METHODS);
         httpCombo.setText(model.getHttpMethod());
         httpCombo.addSelectionListener(new SelectionAdapter() {
@@ -673,9 +673,6 @@ class ItemView implements ModelListener, Serializable {
     }
 
     private void doDispose() {
-        if (httpJob != null) {
-            httpJob.cancel();
-        }
         buzJob.abort(false);
     }
 

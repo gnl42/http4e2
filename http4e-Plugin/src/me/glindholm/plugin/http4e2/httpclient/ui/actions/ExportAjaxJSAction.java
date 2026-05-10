@@ -5,7 +5,8 @@ import java.io.StringWriter;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
+
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
@@ -19,10 +20,12 @@ import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
 
 public class ExportAjaxJSAction extends Action {
 
-    private final ViewPart view;
+    private final Shell shell;
+    private final HdViewPart view;
     private Menu fMenu;
 
-    public ExportAjaxJSAction(final ViewPart view) {
+    public ExportAjaxJSAction(final Shell shell, final HdViewPart view) {
+        this.shell = shell;
         this.view = view;
         fMenu = null;
         setToolTipText("Export call as JavaScript");
@@ -46,14 +49,14 @@ public class ExportAjaxJSAction extends Action {
     @Override
     public void run() {
         try {
-            final FolderView folderView = ((HdViewPart) view).getFolderView();
+            final FolderView folderView = view.getFolderView();
             final ItemModel iModel = folderView.getModel().getItemModel(folderView.getSelectionItemHash());
             iModel.fireExecute(new ModelEvent(ModelEvent.EXPORT, iModel));
 
             final StringWriter writer = new StringWriter();
             BaseUtils.writeJsXhr(iModel, writer);
 
-            final ExportDialog dialog = new ExportDialog(view, "JavaScript XMLHttpRequest HTTP client",
+            final ExportDialog dialog = new ExportDialog(shell, view.getFolderView(), "JavaScript XMLHttpRequest HTTP client",
                     "Your call exported as a JavaScript XMLHttpRequest code.", writer.toString());
             dialog.open();
         } catch (final Exception e) {

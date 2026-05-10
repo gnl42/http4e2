@@ -5,7 +5,8 @@ import java.io.StringWriter;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
+
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
@@ -19,10 +20,12 @@ import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
 
 public class ExportPHPAction extends Action {
 
-    private final ViewPart view;
+    private final Shell shell;
+    private final HdViewPart view;
     private Menu fMenu;
 
-    public ExportPHPAction(final ViewPart view) {
+    public ExportPHPAction(final Shell shell, final HdViewPart view) {
+        this.shell = shell;
         this.view = view;
         fMenu = null;
         setToolTipText("Export call as PHP script");
@@ -46,14 +49,14 @@ public class ExportPHPAction extends Action {
     @Override
     public void run() {
         try {
-            final FolderView folderView = ((HdViewPart) view).getFolderView();
+            final FolderView folderView = view.getFolderView();
             final ItemModel iModel = folderView.getModel().getItemModel(folderView.getSelectionItemHash());
             iModel.fireExecute(new ModelEvent(ModelEvent.EXPORT, iModel));
 
             final StringWriter writer = new StringWriter();
             BaseUtils.writePHP(iModel, writer);
 
-            final ExportDialog dialog = new ExportDialog(view, "PHP Curl HTTP Rest client", "Your call exported as PHP Curl HTTP Rest client call.",
+            final ExportDialog dialog = new ExportDialog(shell, view.getFolderView(), "PHP Curl HTTP Rest client", "Your call exported as PHP Curl HTTP Rest client call.",
                     writer.toString());
             dialog.open();
         } catch (final Exception e) {

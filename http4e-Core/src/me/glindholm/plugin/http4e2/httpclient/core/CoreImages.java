@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,7 @@ import me.glindholm.plugin.http4e2.httpclient.core.util.BaseUtils;
 
 /**
  * This class contains all images relative path.
- * 
+ *
  * @author Atanas Roussev (https://nextinterfaces.com)
  */
 public interface CoreImages {
@@ -33,17 +33,17 @@ public interface CoreImages {
     String ATTACH = icons + "attach.png";
     String MENU = icons + "menu.png";
     String RESIZE = icons + "resize.png";
-    String GO = icons + "go.gif";
+    String GO = icons + "go.png";
     String TITLE_LINE = icons + "title-line.png";
     String BROWSER = icons + "browser.png";
     String LOADING_OFF = icons + "loading-small.png";
-    String LOADING_ON = icons + "loading-small.gif";
-    String BLANK16 = icons + "blank16.gif";
-    String BLANK20 = icons + "blank20.gif";
-    String BLANK24 = icons + "blank24.gif";
-    String PROGRESS_STOP_ON = icons + "progress_stop_on.gif";
-    String PROGRESS_STOP_OFF = icons + "progress_stop_off.gif";
-    String CLOSE_ROW = icons + "close-row.gif";
+    String LOADING_ON = icons + "loading-small.gif"; // must remain GIF — SWT ImageLoader requires animated GIF for multi-frame animation
+    String BLANK16 = icons + "blank16.png";
+    String BLANK20 = icons + "blank20.png";
+    String BLANK24 = icons + "blank24.png";
+    String PROGRESS_STOP_ON = icons + "progress_stop_on.png";
+    String PROGRESS_STOP_OFF = icons + "progress_stop_off.png";
+    String CLOSE_ROW = icons + "close-row.png";
     String JSON = icons + "json.png";
     String DELETE = icons + "delete.png";
 
@@ -62,8 +62,8 @@ public interface CoreImages {
     String FILE_OPEN = icons + "file-open.png";
     String FILE_OPEN_DIS = icons + "file-open-dis.png";
 
-    String SYNCED = icons + "synced.gif";
-    String STEP_PREV = icons + "step-prev.gif";
+    String SYNCED = icons + "synced.png";
+    String STEP_PREV = icons + "step-prev.png";
 
     String ASSIST_HEADER = icons + "assist-header.png";
     String ASSIST_HEADER_CACHED = icons + "assist-param.png";
@@ -74,22 +74,22 @@ public interface CoreImages {
     String FILE_HEADERS_VALUES = FOLDER + "/resources/headers-values.properties";
 
     String PARAMETERIZE = FOLDER_PLUGIN + "/icons/" + "params.png";
-    String TAB_DUPLICATE = FOLDER_PLUGIN + "/icons/" + "duplicate.gif";
+    String TAB_DUPLICATE = FOLDER_PLUGIN + "/icons/" + "duplicate.png";
     String TAB_OPEN = FOLDER_PLUGIN + "/icons/" + "tab-new.png";
-    String IMPORT = FOLDER_PLUGIN + "/icons/" + "import.gif";
-    String EXPORT = FOLDER_PLUGIN + "/icons/" + "export.gif";
-    String JS = FOLDER_PLUGIN + "/icons/" + "js.gif";
-    String CSHARP = FOLDER_PLUGIN + "/icons/" + "csharp.gif";
+    String IMPORT = FOLDER_PLUGIN + "/icons/" + "import.png";
+    String EXPORT = FOLDER_PLUGIN + "/icons/" + "export.png";
+    String JS = FOLDER_PLUGIN + "/icons/" + "js.png";
+    String CSHARP = FOLDER_PLUGIN + "/icons/" + "csharp.png";
     String JAVA = FOLDER_PLUGIN + "/icons/" + "java.png";
-    String FLEX = FOLDER_PLUGIN + "/icons/" + "flex.gif";
-    String RUBY = FOLDER_PLUGIN + "/icons/" + "ruby.gif";
-    String JMETER = FOLDER_PLUGIN + "/icons/" + "jmeter.gif";
-    String VB = FOLDER_PLUGIN + "/icons/" + "vb.gif";
-    String PHP = FOLDER_PLUGIN + "/icons/" + "php.gif";
-    String OC = FOLDER_PLUGIN + "/icons/" + "oc.gif";
-    String PYTHON = FOLDER_PLUGIN + "/icons/" + "python.gif";
+    String FLEX = FOLDER_PLUGIN + "/icons/" + "flex.png";
+    String RUBY = FOLDER_PLUGIN + "/icons/" + "ruby.png";
+    String JMETER = FOLDER_PLUGIN + "/icons/" + "jmeter.png";
+    String VB = FOLDER_PLUGIN + "/icons/" + "vb.png";
+    String PHP = FOLDER_PLUGIN + "/icons/" + "php.png";
+    String OC = FOLDER_PLUGIN + "/icons/" + "oc.png";
+    String PYTHON = FOLDER_PLUGIN + "/icons/" + "python.png";
     String HELP = FOLDER_PLUGIN + "/icons/" + "help.png";
-    String PRINT = FOLDER_PLUGIN + "/icons/" + "print_edit.gif";
+    String PRINT = FOLDER_PLUGIN + "/icons/" + "print_edit.png";
     String TOOLS = FOLDER_PLUGIN + "/icons/" + "tools.png";
     String LOGO_DIALOG = FOLDER_PLUGIN + "/icons/" + "logo-dialog.png";
     String PAYPAL = FOLDER_PLUGIN + "/icons/" + "paypal.png";
@@ -100,5 +100,7 @@ public interface CoreImages {
     String PROXY = FOLDER_PLUGIN + "/icons/" + "proxy.png";
     String PROXY_ENABLED = FOLDER_PLUGIN + "/icons/" + "proxy_enabled.png";
     String PROXY_TAB = FOLDER_PLUGIN + "/icons/" + "proxy_tab.png";
+    String CERT_OK = FOLDER_PLUGIN + "/icons/" + "cert_ok.png";
+    String CERT_WARN = FOLDER_PLUGIN + "/icons/" + "cert_warn.png";
 
 }

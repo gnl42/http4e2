@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="https://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>me.glindholm.plugin.http4e2</groupId>
 	<artifactId>http4e</artifactId>
@@ -11,8 +11,8 @@
 	<description>http4e parent</description>
 
 	<properties>
-		<tycho.version>4.0.4</tycho.version>
-		<tycho.test.jvmArgs>-Xmx512m -XX:MaxPermSize=256m</tycho.test.jvmArgs>
+		<tycho.version>5.0.2</tycho.version>
+		<tycho.test.jvmArgs>-Xmx512m </tycho.test.jvmArgs>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!-- Required properties for releasing -->
@@ -184,7 +184,7 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-compiler-plugin</artifactId>
 				<configuration>
-					<release>17</release>
+					<release>21</release>
 					<optimize>true</optimize>
 					<showWarnings>true</showWarnings>
 				</configuration>
@@ -317,7 +317,7 @@
 	</profiles>
 
 	<modules>
-		<module>http4e-Target</module>
+		<module>http4e-target</module>
 		<module>http4e-Core</module>
 		<module>http4e-Plugin</module>
 		<module>http4e-Feature</module>

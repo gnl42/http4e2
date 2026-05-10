@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@ package me.glindholm.plugin.http4e2.httpclient.core.client.view;
 
 import java.util.List;
 
+import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Adapter;
@@ -24,10 +25,8 @@ import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Display;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreContext;
@@ -37,9 +36,7 @@ import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ModelEvent;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ModelListener;
 import me.glindholm.plugin.http4e2.httpclient.core.misc.ResourceCache;
-import me.glindholm.plugin.http4e2.httpclient.core.misc.Styles;
 import me.glindholm.plugin.http4e2.httpclient.core.util.BaseUtils;
-import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
 
 public class FolderView implements CoreConstants, ModelListener {
 
@@ -74,10 +71,10 @@ public class FolderView implements CoreConstants, ModelListener {
         folder = new CTabFolder(parent, SWT.MULTI | SWT.CLOSE | SWT.BORDER);
         folder.setTabPosition(SWT.DOWN);
         folder.setTabHeight(20);
-        // folder.setSimple(false);
-        // folder.setCapture(true);
         folder.setBackgroundMode(SWT.INHERIT_DEFAULT);
         folder.setBorderVisible(false);
+        // Apply e4 CSS class – colours managed by the stylesheet
+        folder.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-tab-folder");
 
         folder.addCTabFolder2Listener(new CTabFolder2Adapter() {
 
@@ -153,18 +150,13 @@ public class FolderView implements CoreConstants, ModelListener {
             buildTab(tab, iModel);
 
         } else if (e.getType() == ModelEvent.FOLDER_FOCUS_GAINED) {
-            folder.setSelectionForeground(ResourceUtils.getColor(Styles.BACKGROUND_ENABLED));
-            final Display display = Display.getCurrent();
-            folder.setSelectionBackground(new Color[] { display.getSystemColor(SWT.COLOR_TITLE_BACKGROUND), display.getSystemColor(SWT.COLOR_TITLE_BACKGROUND),
-                    display.getSystemColor(SWT.COLOR_TITLE_BACKGROUND_GRADIENT) }, new int[] { 100, 100 }, true);
-            folder.setSelectionForeground(display.getSystemColor(SWT.COLOR_TITLE_FOREGROUND));
+            // CSS handles active-tab colours; just mark the widget as focused
+            folder.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-tab-folder");
+            folder.redraw();
 
         } else if (e.getType() == ModelEvent.FOLDER_FOCUS_LOST) {
-            final Display display = Display.getCurrent();
-            folder.setSelectionBackground(new Color[] { display.getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND),
-                    display.getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND), display.getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT) },
-                    new int[] { 100, 100 }, true);
-            folder.setSelectionForeground(display.getSystemColor(SWT.COLOR_TITLE_INACTIVE_FOREGROUND));
+            folder.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-tab-folder");
+            folder.redraw();
 
         } else if (e.getType() == ModelEvent.PARAMETERIZE_CHANGE) {
             for (final ItemModel m : model.getItemModels()) {

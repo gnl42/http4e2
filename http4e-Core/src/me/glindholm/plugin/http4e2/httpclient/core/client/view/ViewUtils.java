@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,6 +15,7 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.core.client.view;
 
+import org.eclipse.e4.ui.css.swt.CSSSWTConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CLabel;
 import org.eclipse.swt.custom.ViewForm;
@@ -23,10 +24,8 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.widgets.Composite;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
-import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
 import me.glindholm.plugin.http4e2.httpclient.core.client.model.ModelEvent;
-import me.glindholm.plugin.http4e2.httpclient.core.util.ResourceUtils;
 
 /**
  * @author Atanas Roussev (https://nextinterfaces.com)
@@ -40,7 +39,7 @@ class ViewUtils {
         final CLabel label = new CLabel(vForm, SWT.NONE);
         label.setText(CoreConstants.TITLE_SPACE + title + CoreConstants.TITLE_SPACE);
         label.setAlignment(SWT.LEFT);
-//        label.setBackground(ResourceUtils.getImage(CoreConstants.PLUGIN_CORE, CoreImages.TITLE_LINE));
+        label.setData(CSSSWTConstants.CSS_CLASS_NAME_KEY, "http4e-title-label");
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDoubleClick(final MouseEvent e) {

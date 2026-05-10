@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,6 @@
  */
 package me.glindholm.plugin.http4e2.httpclient.core.util;
 
-import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
@@ -26,7 +25,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.StringTokenizer;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
@@ -118,16 +116,15 @@ public class ParseUtils {
         return paramsMap;
     }
 
-    public static Map linesToMap2(final String params) {
-        final Properties map = new Properties();
-        try {
-            map.load(new ByteArrayInputStream(params.toString().getBytes("UTF8")));
-
-        } catch (final Exception e) {
-            e.printStackTrace();
-        }
-
-        return map;
+    public static Map<String, String> linesToMap2(final String params) {
+        return Arrays.stream(params.split("[\\r\\n]+"))
+                .map(String::trim)
+                .filter(line -> !line.isEmpty() && line.contains("="))
+                .collect(java.util.stream.Collectors.toMap(
+                        line -> line.substring(0, line.indexOf('=')).trim(),
+                        line -> line.substring(line.indexOf('=') + 1).trim(),
+                        (existing, replacement) -> replacement,
+                        LinkedHashMap::new));
     }
 
     private static void lineToMap(final String pline, final Map<String, ParseBean> pmap) {
@@ -153,7 +150,7 @@ public class ParseUtils {
 
         final Map<String, ParseBean> paramMap = linesToMap(text);
         final StringBuilder sb = new StringBuilder();
-        for (String key : paramMap.keySet()) {
+        for (final String key : paramMap.keySet()) {
             final ParseBean p = paramMap.get(key);
             for (String val : p.getValues()) {
                 sb.append(key);
@@ -238,7 +235,8 @@ public class ParseUtils {
      */
     public static List<String> paramToUrlAndBody(final String paramText) {
         final List<String> res = new ArrayList<>();
-        final Map<String, String> parameterizedArgs = (Map<String, String>) CoreContext.getContext().getObject(CoreObjects.PARAMETERIZE_ARGS);
+        @SuppressWarnings("unchecked")
+		final Map<String, String> parameterizedArgs = (Map<String, String>) CoreContext.getContext().getObject(CoreObjects.PARAMETERIZE_ARGS);
 
         final Map<String, ParseBean> paramMap = ParseUtils.linesToMap(paramText);
         final StringBuilder sBody = new StringBuilder();
@@ -256,7 +254,7 @@ public class ParseUtils {
                 // class?
                 sUrl.append(CoreConstants._AND);
             } else {
-                for (String val : pp.getValues()) {
+                for (final String val : pp.getValues()) {
                     final String parameterizedVal = ParseUtils.getParametizedArg(val, parameterizedArgs);
                     // -- body
                     sBody.append(key);

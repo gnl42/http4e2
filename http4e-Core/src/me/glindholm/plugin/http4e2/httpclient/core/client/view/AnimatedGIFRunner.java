@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -41,7 +41,7 @@ class AnimatedGIFRunner implements Runnable {
     private final Color shellBackground;
     private final ImageLoader imageLoader;
     private final ImageData[] imageDataArray;
-    private final boolean useGIFBackground = false;
+
     private Image image;
     private boolean isStopped;
     private final Image backgroundImage;
@@ -68,7 +68,7 @@ class AnimatedGIFRunner implements Runnable {
             final GC graphics = e.gc;
             if (!graphics.isDisposed()) {
                 graphics.drawImage(backgroundImage, positionX, positionY);
-                graphics.dispose();
+                // Do NOT dispose e.gc — SWT owns and disposes it
             }
         });
     }
@@ -113,7 +113,7 @@ class AnimatedGIFRunner implements Runnable {
                      * Fill with the background color before drawing.
                      */
                     Color bgColor = null;
-                    if (useGIFBackground && imageLoader.backgroundPixel != -1) {
+                    if (imageLoader.backgroundPixel != -1) {
                         bgColor = new Color(display, imageData.palette.getRGB(imageLoader.backgroundPixel));
                     }
                     offGC.setBackground(bgColor != null ? bgColor : shellBackground);
@@ -175,6 +175,14 @@ class AnimatedGIFRunner implements Runnable {
             }
             if (image != null && !image.isDisposed()) {
                 image.dispose();
+            }
+            // controlGC must be disposed on the UI thread
+            if (controlGC != null && !controlGC.isDisposed()) {
+                display.syncExec(() -> {
+                    if (!controlGC.isDisposed()) {
+                        controlGC.dispose();
+                    }
+                });
             }
         }
     }

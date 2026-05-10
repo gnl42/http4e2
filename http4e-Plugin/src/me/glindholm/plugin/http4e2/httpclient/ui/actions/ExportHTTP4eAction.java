@@ -6,7 +6,7 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.ui.part.ViewPart;
+import org.eclipse.swt.widgets.Shell;
 
 import me.glindholm.plugin.http4e2.httpclient.core.CoreConstants;
 import me.glindholm.plugin.http4e2.httpclient.core.CoreImages;
@@ -19,10 +19,12 @@ import me.glindholm.plugin.http4e2.httpclient.ui.preferences.PreferenceConstants
 
 public class ExportHTTP4eAction extends Action {
 
-    private final ViewPart view;
+    private final Shell shell;
+    private final HdViewPart view;
     private Menu fMenu;
 
-    public ExportHTTP4eAction(final ViewPart view) {
+    public ExportHTTP4eAction(final Shell shell, final HdViewPart view) {
+        this.shell = shell;
         this.view = view;
         fMenu = null;
         setToolTipText("Export tabs as HTTP4e2 script");
@@ -48,7 +50,7 @@ public class ExportHTTP4eAction extends Action {
 
         try {
 
-            final FileDialog fileDialog = new FileDialog(view.getSite().getShell(), SWT.SAVE);
+            final FileDialog fileDialog = new FileDialog(shell, SWT.SAVE);
 
             fileDialog.setFileName("sessions.http4e");
             fileDialog.setFilterNames(new String[] { "HTTP4e2 File *.http4e (HTTP4e2 all tab sessions)" });
@@ -58,8 +60,7 @@ public class ExportHTTP4eAction extends Action {
 
             final String path = fileDialog.open();
             if (path != null) {
-                final HdViewPart hdView = (HdViewPart) view;
-                BaseUtils.writeHttp4eSessions(path, hdView.getFolderView().getModel());
+                BaseUtils.writeHttp4eSessions(path, view.getFolderView().getModel());
                 updateUserHomeDir(path);
             }
 

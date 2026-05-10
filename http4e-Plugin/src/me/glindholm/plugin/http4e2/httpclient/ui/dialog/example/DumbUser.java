@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -64,7 +64,7 @@ public class DumbUser extends ApplicationWindow {
 
     /**
      * Creates the main window's contents
-     * 
+     *
      * @param parent the main window
      * @return Control
      */
@@ -95,7 +95,7 @@ public class DumbUser extends ApplicationWindow {
 
     /**
      * The application entry point
-     * 
+     *
      * @param args the command line arguments
      */
     public static void main(final String[] args) {
@@ -118,7 +118,7 @@ class DumbMessageDialog extends IconAndMessageDialog {
 
     /**
      * DumbMessageDialog constructor
-     * 
+     *
      * @param parent the parent shell
      */
     public DumbMessageDialog(final Shell parent) {
@@ -136,7 +136,7 @@ class DumbMessageDialog extends IconAndMessageDialog {
 
     /**
      * Sets the message
-     * 
+     *
      * @param message the message
      */
     public void setMessage(final String message) {
@@ -145,7 +145,7 @@ class DumbMessageDialog extends IconAndMessageDialog {
 
     /**
      * Closes the dialog
-     * 
+     *
      * @return boolean
      */
     @Override
@@ -158,7 +158,7 @@ class DumbMessageDialog extends IconAndMessageDialog {
 
     /**
      * Creates the dialog area
-     * 
+     *
      * @param parent the parent composite
      * @return Control
      */
@@ -181,7 +181,7 @@ class DumbMessageDialog extends IconAndMessageDialog {
 
     /**
      * Creates the buttons
-     * 
+     *
      * @param parent the parent composite
      */
     @Override
@@ -193,7 +193,7 @@ class DumbMessageDialog extends IconAndMessageDialog {
 
     /**
      * Handles a button press
-     * 
+     *
      * @param buttonId the ID of the pressed button
      */
     @Override

@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,8 @@ package me.glindholm.plugin.http4e2.httpclient.ui.actions;
 import org.eclipse.jface.action.Action;
 
 import me.glindholm.plugin.http4e2.httpclient.core.ExceptionHandler;
+import me.glindholm.plugin.http4e2.httpclient.core.client.model.ItemModel;
+import me.glindholm.plugin.http4e2.httpclient.core.client.view.FolderView;
 import me.glindholm.plugin.http4e2.httpclient.ui.HdViewPart;
 
 public class AuthenticationAction extends Action {
@@ -34,7 +36,9 @@ public class AuthenticationAction extends Action {
     @Override
     public void run() {
         try {
-            final AuthDialog dialog = new AuthDialog(view);
+            final FolderView folderView = view.getFolderView();
+            final ItemModel itemModel = folderView.getModel().getItemModel(folderView.getSelectionItemHash());
+            final AuthDialog dialog = new AuthDialog(view.getShell(), itemModel);
             dialog.open();
         } catch (final Exception e) {
             ExceptionHandler.handle(e);

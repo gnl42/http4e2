@@ -5,7 +5,7 @@
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ *      https://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing, software
  *  distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,6 @@
  */
 package me.glindholm.plugin.http4e2.editor.xml.contentassist;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -54,8 +53,7 @@ public class TagContentAssistProcessor implements IContentAssistProcessor {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public ICompletionProposal[] computeCompletionProposals(final ITextViewer viewer, final int offset) {
+     public ICompletionProposal[] computeCompletionProposals(final ITextViewer viewer, final int offset) {
 
         final IDocument document = viewer.getDocument();
         final boolean isAttribute = isAttribute(offset, document);
@@ -68,8 +66,7 @@ public class TagContentAssistProcessor implements IContentAssistProcessor {
 
             final ICompletionProposal[] result = new ICompletionProposal[allElements.size()];
             int i = 0;
-            for (final Iterator<XMLElement> iter = allElements.iterator(); iter.hasNext();) {
-                final XMLElement element = iter.next();
+            for (final XMLElement element : allElements) {
                 final String name = element.getName();
 
                 String text = null;
@@ -91,10 +88,8 @@ public class TagContentAssistProcessor implements IContentAssistProcessor {
 
             final ICompletionProposal[] result = new ICompletionProposal[allAttributes.size()];
             int i = 0;
-            for (final Iterator<String> iter = allAttributes.iterator(); iter.hasNext();) {
-                final String name = iter.next();
-
-                String text = null;
+            for (final String name : allAttributes) {
+                final String text ;
 
                 if (currentText.isWhiteSpace) {
                     text = name + "= \"\" ";
